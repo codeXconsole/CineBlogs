@@ -9,9 +9,10 @@ import { ScaleLoader } from "react-spinners";
 import AILoader from "../Components/AILoader.jsx";
 import { Rating, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { MovieCreation } from "@mui/icons-material";
 
 export default function PostForm({ post }) {
-    const { register, handleSubmit, setValue } = useForm({
+    const { register, handleSubmit, setValue, watch  } = useForm({
         defaultValues: {
             title: post?.title || "",
             slug: post?.slug || "",
@@ -19,7 +20,7 @@ export default function PostForm({ post }) {
             status: post?.status || "Public",
         },
     });
-
+    const contentValue = watch("content");
     const [isLoading, setLoading] = useState(false);
     const [isAIContent, setAIContent] = useState(false);
     const [isAILoading, setAILoading] = useState(false);
@@ -45,7 +46,6 @@ export default function PostForm({ post }) {
 
     const getAiResponse = async () => {
         setAILoading(true);
-        setAIContent(true)
         try {
             const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_AI_KEY);
             const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -80,6 +80,42 @@ export default function PostForm({ post }) {
             setShowAIModal(false);
         }
     };
+
+    const improveContentWithAI = async () => {
+        setAILoading(true);
+        try {
+            const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_AI_KEY);
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const prompt = `${movie?.Title || post?.title}, ${contentValue}, Make this content more read feiendly and social media worthy, without adding stars into content and make content simpler in min 150 words, make content beautiful with little emojis.`;
+            const result = await model.generateContent(prompt);
+
+            if (result) {
+                setValue("content", result.response.text());
+                setAIContent(true);
+            } else {
+                toast.error("Failed to get AI response...", {
+                    autoClose: 1000,
+                    style: {
+                        backgroundColor: "#2e1065",
+                        color: "#ffffff",
+                    },
+                    hideProgressBar: true,
+                });
+            }
+        } catch (error) {
+            console.error("Error generating AI response:", error);
+            toast.error("Error occurred while getting AI response...", {
+                autoClose: 1000,
+                style: {
+                    backgroundColor: "#2e1065",
+                    color: "#ffffff",
+                },
+                hideProgressBar: true,
+            });
+        } finally {
+            setAILoading(false);
+        }
+    }
 
     const submit = async (data) => {
        setLoading(true)
@@ -256,30 +292,35 @@ export default function PostForm({ post }) {
 
             {/* Form Content */}
             <div className="text-center mb-8">
-                <h2 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
-                    Add Content for <span className="text-teal-400">{movie?.Title || post?.title}</span>
+                <h2 className="text-4xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+                    Share Your Views on <span className="text-teal-400">{movie?.Title || post?.title}</span>
                 </h2>
                 <p className="text-xl text-gray-300 mt-4">
-                    Share your thoughts and reviews in a place that matters.
+                    Write down your positive or negative points here — our AI will help turn them into a complete review.
                 </p>
             </div>
 
             {/* Content Textarea */}
             <div className="w-full flex flex-col items-center gap-8 mt-6">
                     <textarea
-                        className="w-full sm:w-3/4 h-[18rem] p-4 rounded-lg text-gray-800 bg-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-transform transform hover:scale-105"
+                        className="w-full sm:w-3/4 h-[20rem] p-4 rounded-lg text-gray-800 bg-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-transform transform hover:scale-105"
                         placeholder="Write your content here..."
                         {...register("content")}
                         disabled={isAIContent}
                     />
                 <div className="flex gap-4">
+                   {contentValue ? <Button
+                        type="button"
+                        onClick={improveContentWithAI}
+                        className="px-4 py-2 bg-teal-400 text-black rounded-lg shadow-md hover:bg-teal-600 hover:scale-105 transition">
+                        Improve content with AI
+                    </Button> :
                     <Button
                         type="button"
                         onClick={() => setShowAIModal(true)}
-                        className="px-4 py-2 bg-teal-400 text-black rounded-lg shadow-md hover:bg-teal-600 hover:scale-105 transition"
-                    >
+                        className="px-4 py-2 bg-teal-400 text-black rounded-lg shadow-md hover:bg-teal-600 hover:scale-105 transition">
                         Use AI Content
-                    </Button>
+                    </Button> }
                     <Button
                         type="button"
                         onClick={() => setAIContent(false)}
