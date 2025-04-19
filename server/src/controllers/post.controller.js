@@ -60,7 +60,7 @@ const updatePost = async (req, res) => {
 
 const getAllPostsOfUser = async (req, res)=>{
     try {
-        const userId = req.user._id
+        const userId = req.params.userId
         const posts = await Post.find({userId})
         if(!posts) return errorResponse(res, "Error while getting posts");
 

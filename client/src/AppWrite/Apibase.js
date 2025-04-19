@@ -120,7 +120,7 @@ export const getAllPostsInHomePage = async (authToken, search, page) => {
 export const getAllPostsByUser = async (authToken, userId) => {
   try {
     const response = await axios.get(
-      `${apiBaseUrl}/api/v1/posts/get-posts-by-id/${userId}`,
+      `${apiBaseUrl}/api/v1/posts/get-userposts/${userId}`,
       {
         headers: {
           Authorization: `Bearer ${authToken}`,

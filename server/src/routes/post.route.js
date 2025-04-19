@@ -6,7 +6,7 @@ const postRouter = Router()
 
 postRouter.route("/create").post(authenticateToken, createPost)
 postRouter.route("/get-posts").get(authenticateToken, getAllPosts)
-postRouter.route("/get-userposts").get(authenticateToken, getAllPostsOfUser)
+postRouter.route("/get-userposts/:userId").get(authenticateToken, getAllPostsOfUser)
 postRouter.route("/update-post/:postId").put(authenticateToken, updatePost);
 postRouter.route("/delete-post/:postId").delete(authenticateToken, deletePost);
 postRouter.route('/get-post/:postId').get(authenticateToken,getPostById);

@@ -72,21 +72,9 @@ function Header() {
     { name: 'Home', slug: "/", active: true },
     { name: "Login", slug: "/login", active: !authStatus },
     { name: "Create Account", slug: "/signup", active: !authStatus },
-    { name: "My Posts", slug: "/all-posts", active: authStatus },
+    { name: "My Posts", slug: `/all-posts/${userData?._id}`, active: authStatus },
     { name: "Add Post", slug: "/add-post", active: authStatus },
   ];
-
-  // useEffect(() => {
-  //   // function handleClickOutside(event) {
-  //   //   if (mobileNavRef.current && !mobileNavRef.current.contains(event.target)) {
-  //   //     setIsMobileNavVisible(false);
-  //   //   }
-  //   // }
-  //   document.addEventListener("mousedown", handleClickOutside);
-  //   return () => {
-  //     document.removeEventListener("mousedown", handleClickOutside);
-  //   };
-  // }, [mobileNavRef]);
 
   return (
     <header className="py-3 px-6 lg:px-16 shadow bg-transparent text-white relative">
@@ -133,16 +121,6 @@ function Header() {
               <li>
                 <LogoutBtn />
               </li>
-              {/* <li className="flex items-center mr-4 space-x-2">
-                <Link to={`/profile/${userData?._id}`}>
-                  <div
-                    className="w-10 cursor-pointer h-10 bg-cover bg-center rounded-full border-2 border-blue-500 hover:scale-105 transition-transform duration-200"
-                    style={{
-                      backgroundImage: `url(${userData?.profileImage || 'https://res.cloudinary.com/dbmn2pyi4/image/upload/v1731603507/johncena_qthmut.jpg'})`,
-                    }}
-                  ></div>
-                </Link>
-              </li> */}
               <ProfileDropdown userData={userData} />
             </>
           )}

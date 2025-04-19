@@ -63,7 +63,7 @@ const router = createBrowserRouter(
       <Route element = {<ProtectRoute/>}>
         <Route path="/" element={<HomePage />} />
         <Route path="/add-post" element={<SearchMovie />} />
-        <Route path="/all-posts" element={<AllPosts />} />
+        <Route path="/all-posts/:userId" element={<AllPosts />} />
         <Route path="/edit-post/:postId" element={<EditPosts />} />
         <Route path="/post/:postId" element={<Post />} />
         <Route path="/posts/:userId" element={<AllPosts />} />

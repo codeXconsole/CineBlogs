@@ -28,12 +28,12 @@ export default function Post() {
     if (postId) {
       getPostById(postId)
         .then((fetchedPost) => {
-          fetchedPost.likes.map((user) => {
+          fetchedPost.likes?.map((user) => {
             if (user?.userId === userData?._id) {
               setUserHasLiked(true);
             }
           })
-          fetchedPost.dislikes.map((user) => {
+          fetchedPost.dislikes?.map((user) => {
             if (user?.userId === userData?._id) {
               setIsDisliked(true)
             }

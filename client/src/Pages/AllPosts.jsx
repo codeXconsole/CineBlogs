@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { PostCard } from "../Components";
@@ -26,7 +27,6 @@ function AllPosts() {
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
-      setError("Error fetching posts.");
       console.error(error);
     }
 
@@ -35,8 +35,6 @@ function AllPosts() {
   useEffect(() => {
     if (authToken) {
       getPosts();
-    } else {
-      setError("User not authenticated.");
     }
   }, [authToken]);
 

@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unescaped-entities */
+/* eslint-disable no-unused-vars */
 import { useEffect, useState, useRef, useCallback } from "react";
 import { PostCard } from "../Components";
 import { useSelector } from "react-redux";
@@ -63,6 +65,7 @@ function HomePage() {
 
   // Intersection Observer for infinite scrolling
   useEffect(() => {
+    if(loading) return
     if (observerRef.current) observerRef.current.disconnect();
     
     observerRef.current = new IntersectionObserver(
