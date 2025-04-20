@@ -126,7 +126,7 @@ const getAllArtists = async (req, res) => {
         }
       },
       {
-        $sort: { postCount: -1, username: 1 }
+        $sort: { postCount: -1, username: 1  }
       },
       {
         $skip: (page - 1) * limit
