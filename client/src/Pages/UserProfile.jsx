@@ -231,9 +231,9 @@ export default function UserProfile() {
             )}
           </div>
           <div>
-            <p className="text-xl font-bold">{userData?.posts?.length || 0}</p>
+            <p className="text-xl font-bold">{userData?.posts || 0}</p>
             {
-              userData?.posts?.length > 0 ? (
+              userData?.posts > 0 ? (
                 <Link to={`/posts/${userData?._id}`}>
                   <p className="text-sm hover:scale-[1.05] hover:text-blue-500 duration-[0.3]">Posts</p>
                 </Link>
