@@ -117,6 +117,35 @@ export const getAllPostsInHomePage = async (authToken, search, page) => {
   }
 };
 
+export const getAllArtists = async (authToken, search, page) => {
+  try {
+    const params = {
+      search: search || "",
+      page: page || 1,
+      limit: 8,
+    };
+    
+    const response = await axios.get(`${apiBaseUrl}/api/v1/users/artists`, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+      params: params,
+    });
+
+    if (response.data?.artists) {
+      return response.data;
+    }
+
+    throw new Error("Unexpected response from server");
+  } catch (error) {
+    console.error("Error fetching artists:", error);
+
+    throw new Error(
+      error.response?.data?.message || "An error occurred while fetching artists."
+    );
+  }
+};
+
 export const getAllPostsByUser = async (authToken, userId) => {
   try {
     const response = await axios.get(

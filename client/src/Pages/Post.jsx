@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faL, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
 import { faThumbsUp, faShare } from '@fortawesome/free-solid-svg-icons';
 import DeletePost from "../Components/DeletePost.jsx";
+import BackButton from "../Components/BackButton.jsx";
 
 export default function Post() {
   const [post, setPost] = useState(null);

@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { getAllPostsByUser } from "../AppWrite/Apibase";
 import { useNavigate, useParams } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
+import BackButton from "../Components/BackButton";
 
 function AllPosts() {
   const { userId } = useParams();
@@ -77,18 +78,23 @@ function AllPosts() {
   }
 
   return (
-    <div className="w-full bg-gradient-to-b from-black via-[#14061F] to-black py-12">
-      <div className="sm:ml-5 w-full h-full flex flex-wrap sm:justify-center sm:items-center justify-center items-center gap-3 transition-all duration-500">
-        {posts?.map((post) => (
-          <div
-            key={post._id}
-            className="p-4 sm:w-[18rem] lg:w-[20rem] xl:w-[22rem] transition-transform transform hover:scale-105 animate__animated animate__fadeIn animate__delay-1s"
-          >
-            <PostCard {...post} />
+    <>
+      <div className="w-full bg-gradient-to-b from-black via-[#14061F] to-black py-12">
+        <div className="w-full flex justify-center">
+          <div className="sm:ml-5 w-full max-w-6xl h-full flex flex-wrap justify-center gap-3 transition-all duration-500">
+            {posts?.map((post) => (
+              <div
+                key={post._id}
+                className="p-4 sm:w-[18rem] lg:w-[20rem] xl:w-[22rem] transition-transform transform hover:scale-105 animate__animated animate__fadeIn animate__delay-1s"
+              >
+                <PostCard {...post} />
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
-    </div>
+
+    </>
   );
 }
 

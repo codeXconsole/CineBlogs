@@ -24,35 +24,7 @@ import AllPosts from "../src/Pages/AllPosts.jsx"
 import UserProfile from "../src/Pages/UserProfile.jsx"
 import MyFollowers from "../src/Pages/MyFollowers.jsx"
 import MyFollowings from "../src/Pages/MyFollowings.jsx"
-
-// const HomePage = lazy(() => import("./Pages/HomePage.jsx"));
-// const Login = lazy(() => import("./Components/Login.jsx"));
-// const SignUpPage = lazy(() => import("./Pages/SignUpPage.jsx"));
-// const SearchMovie = lazy(() => import("./Pages/SearchMovie.jsx"));
-// const AddPost = lazy(() => import("./Pages/AddPost.jsx"));
-// const EditPosts = lazy(() => import("./Pages/EditPosts.jsx"));
-// const Post = lazy(() => import("./Pages/Post.jsx"));
-// const AllPosts = lazy(() => import("./Pages/AllPosts.jsx"));
-// const UserProfile = lazy(() => import("./Pages/UserProfile.jsx"));
-// const MyFollowers = lazy(() => import("./Pages/MyFollowers.jsx"));
-// const MyFollowings = lazy(() => import("./Pages/MyFollowings.jsx"));
-
-// const Loading = () => (
-//   <div className="w-full h-full flex flex-col justify-center items-center bg-gradient-to-b from-black via-[#14061F] to-black py-12">
-//     <div className="p-4 w-full flex flex-col justify-center items-center">
-//       <h1 className="text-4xl font-semibold text-white">
-//         "Patience, the Best Stories Are Worth the Wait."
-//       </h1>
-//       <p className="text-lg mt-2 text-gray-300">
-//         We’re brewing something great! Check back soon for fresh content.
-//       </p>
-//     </div>
-//     <div className='mt-[5rem]'>
-//       <ScaleLoader color="#ffffff" height={50} />
-//     </div>
-//   </div>
-// );
-
+import Artists from "../src/Pages/Artists.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -62,6 +34,7 @@ const router = createBrowserRouter(
       <Route path="/signup" element={<SignUpPage />} />
       <Route element = {<ProtectRoute/>}>
         <Route path="/" element={<HomePage />} />
+        <Route path="/artists" element={<Artists />} />
         <Route path="/add-post" element={<SearchMovie />} />
         <Route path="/all-posts/:userId" element={<AllPosts />} />
         <Route path="/edit-post/:postId" element={<EditPosts />} />

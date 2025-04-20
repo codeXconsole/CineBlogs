@@ -11,6 +11,7 @@ import { Edit as EditIcon, Done as DoneIcon, CameraAlt as CameraAltIcon } from '
 import MuiInput from '../utility/CustomeInput';
 import { createFollow, getUserData, updateUserProfile } from '../AppWrite/Apibase';
 import { Login } from "../Store/AuthSlice.js";
+import BackButton from '../components/BackButton';
 
 export default function UserProfile() {
   const [userData, setUser] = useState(null);
@@ -80,7 +81,7 @@ export default function UserProfile() {
       toast.error("Error updating follow status.");
     }
   };
-  
+
 
   const handleEdit = useCallback(async () => {
     if (isEdit) {
@@ -139,6 +140,7 @@ export default function UserProfile() {
   return (
     <div className="bg-transparent min-h-screen flex flex-col items-center py-12 px-4">
       <div className="border-white border-[0.1px] shadow-sm shadow-white w-full max-w-[40rem] bg-gradient-to-b from-black via-[#12041c] to-black rounded-xl p-8 text-white text-center">
+        <BackButton />
         <Stack direction="column" alignItems="center">
           <div className="relative">
             <Avatar
@@ -220,15 +222,23 @@ export default function UserProfile() {
         <div className="flex justify-around mt-6 text-gray-300">
           <div>
             <p className="text-xl font-bold">{followerCount}</p>
-            <Link to={`/followers/${userData?._id}`}>
-              <p className="text-sm hover:scale-[1.05] hover:text-blue-500 duration-[0.3]">Followers</p>
-            </Link>
+            {followerCount > 0 ? (
+              <Link to={`/followers/${userData?._id}`}>
+                <p className="text-sm hover:scale-[1.05] hover:text-blue-500 duration-[0.3]">Followers</p>
+              </Link>
+            ) : (
+              <p className="text-sm">Followers</p>
+            )}
           </div>
           <div>
             <p className="text-xl font-bold">{userData?.posts?.length || 0}</p>
-            <Link to={`/posts/${userData?._id}`}>
-              <p className="text-sm hover:scale-[1.05] hover:text-blue-500 duration-[0.3]">Posts</p>
-            </Link>
+            {
+              userData?.posts?.length > 0 ? (
+                <Link to={`/posts/${userData?._id}`}>
+                  <p className="text-sm hover:scale-[1.05] hover:text-blue-500 duration-[0.3]">Posts</p>
+                </Link>
+              ) : (<p className="text-sm">Posts</p>)
+            }
           </div>
         </div>
 

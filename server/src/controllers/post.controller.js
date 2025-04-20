@@ -61,10 +61,11 @@ const updatePost = async (req, res) => {
 const getAllPostsOfUser = async (req, res)=>{
     try {
         const userId = req.params.userId
-        const posts = await Post.find({userId})
-        if(!posts) return errorResponse(res, "Error while getting posts");
+        const filter = { userId };
 
-        if(posts.length == 0) return errorResponse(res, "No post found");
+        if(userId !== String(req.user._id)) filter.status = true;
+        const posts = await Post.find(filter)
+        if(!posts) return errorResponse(res, "Error while getting posts");
         
         return successResponse({ res, message: "Posts get successfully", data: posts });
     } catch (error) {
@@ -93,7 +94,6 @@ const getAllPostsById = async (req, res) => {
   
   try {
     const { userId } = req.params;
-
     const post = await Post.find({userId}, 'image');
 
     return successResponse({ res, message: "Posts found successfully", data: post });

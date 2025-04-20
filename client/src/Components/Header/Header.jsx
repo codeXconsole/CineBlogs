@@ -70,6 +70,7 @@ function Header() {
 
   const navItems = [
     { name: 'Home', slug: "/", active: true },
+    { name: "Artists", slug: "/artists", active: authStatus },
     { name: "Login", slug: "/login", active: !authStatus },
     { name: "Create Account", slug: "/signup", active: !authStatus },
     { name: "My Posts", slug: `/all-posts/${userData?._id}`, active: authStatus },

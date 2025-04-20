@@ -1,11 +1,12 @@
+/* eslint-disable react/prop-types */
 import { TextField, InputAdornment } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear'; // Import ClearIcon
 
-function SearchBar({ searchQuery, handleSearchChange, onClearSearch }) {
+function SearchBar({ searchQuery, handleSearchChange, onClearSearch, label }) {
   return (
     <TextField
-      label="Search Posts"
+      label={label || "Search Posts"}
       variant="outlined"
       fullWidth
       value={searchQuery}
