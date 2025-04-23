@@ -3,47 +3,44 @@ import { Link } from "react-router-dom";
 
 export default function ArtistCard({ _id, username, profileImage, postCount }) {
   return (
-    <div className="bg-black rounded-2xl p-3 border-[1px] border-white">
-      <div className="relative z-10 flex flex-col items-center p-6 pb-4">
-        <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-violet-500 shadow-md mb-3">
+    <div className=" bg-black rounded-lg p-4 border-[1px] border-gray-700 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 w-fit">
+      <div className="relative flex flex-col items-center">
+        {/* Profile Image */}
+        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-violet-500 mb-3">
           <img
             src={profileImage || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
             alt={username}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+            className="w-full h-full object-cover transition-transform duration-300"
           />
         </div>
 
-        <h3 className="text-white text-lg font-semibold tracking-wide mb-1">{username}</h3>
+        {/* Artist's Name */}
+        <h3 className="text-white text-md font-semibold mb-2">{username}</h3>
       </div>
 
       {/* Divider */}
-      <div className="border-t border-[#2a2a2a] mx-6 relative z-10" />
+      <div className="border-t border-[#2a2a2a] mx-6 mb-3" />
 
-      {/* Stats */}
-      <div className="relative z-10 flex justify-between items-center px-6 py-4 text-sm text-gray-400">
-        {postCount > 0 ? (
-          <Link to={`/all-posts/${_id}`} className="flex flex-col items-center">
-            <div className="flex flex-col items-center bg-transparent hover:bg-gray-800/30 p-3 px-4 rounded-xl transition-all duration-300 ease-in-out cursor-pointer hover:shadow-md">
-              <span className="text-white font-semibold transition duration-300 ">{postCount}</span>
-              <span className="text-xs transition duration-300 hover:text-blue-600">Posts</span>
-            </div>
-          </Link>
-        ) : (
-          <div className="flex flex-col items-center bg-transparent hover:bg-gray-800/30 p-3 px-4 rounded-xl transition-all duration-300 ease-in-out cursor-pointer hover:shadow-md">
-            <span className="text-white font-semibold ">{postCount}</span>
-            <span className="text-xs ">Posts</span>
+      {/* Stats Section */}
+      <div className="flex justify-center space-x-4 text-sm text-gray-400">
+        {/* Posts Section */}
+        <Link to={`/all-posts/${_id}`} className="group transition-colors duration-300">
+          <div className="p-2 px-3 rounded-xl bg-transparent hover:bg-gray-800/30 cursor-pointer flex items-center justify-center">
+            <span className="text-white font-semibold mr-2">{postCount}</span>
+            <span className="text-xs">Posts</span>
           </div>
-        )}
+          <span className="flex justify-center items-center text-xs group-hover:text-blue-600">View Posts</span>
+        </Link>
 
-        <div className="w-[1px] h-6 bg-[#2a2a2a]" />
-        <Link to={`/profile/${_id}`} className="flex flex-col items-center">
-          <div className="flex flex-col items-center bg-transparent hover:bg-gray-800/30 p-3 px-4 rounded-xl transition-all duration-300 ease-in-out cursor-pointer hover:shadow-md">
-            <span className="text-white font-semibold transition duration-300">View</span>
-            <span className="text-xs transition duration-300">Profile</span>
+        {/* View Profile Section */}
+        <Link to={`/profile/${_id}`} className="grouptransition-colors duration-300">
+          <div className="p-2 px-3 rounded-xl bg-transparent hover:bg-gray-800/30 cursor-pointer flex items-center justify-center">
+            <span className="text-white mr-2">View</span>
+            <span className="text-xs">Profile</span>
           </div>
+          <span className="text-xs group-hover:text-blue-600 ml-4">Go to Profile</span>
         </Link>
       </div>
-
     </div>
   );
 }
