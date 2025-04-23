@@ -79,20 +79,21 @@ function AllPosts() {
 
   return (
     <>
-      <div className="w-full bg-gradient-to-b from-black via-[#14061F] to-black py-12">
-        <div className="w-full flex justify-center">
-          <div className="sm:ml-5 w-full max-w-6xl h-full flex flex-wrap justify-center gap-3 transition-all duration-500">
-            {posts?.map((post) => (
-              <div
-                key={post._id}
-                className="p-4 sm:w-[18rem] lg:w-[20rem] xl:w-[22rem] transition-transform transform hover:scale-105 animate__animated animate__fadeIn animate__delay-1s"
-              >
-                <PostCard {...post} />
-              </div>
-            ))}
-          </div>
+<div className="flex flex-col justify-center items-center w-full bg-gradient-to-b from-black via-[#14061F] to-black py-12">
+  <div className="w-full flex justify-center">
+    {/* Container for the grid */}
+    <div className="w-fit max-w-6xl px-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 transition-all duration-500">
+      {posts?.map((post) => (
+        <div
+          key={post._id}
+          className="transition-transform transform hover:scale-105 animate__animated animate__fadeIn animate__delay-1s"
+        >
+          <PostCard {...post} />
         </div>
-      </div>
+      ))}
+    </div>
+  </div>
+</div>
 
     </>
   );

@@ -20,15 +20,15 @@ function HomePage() {
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
-    
+
     if (timer) {
       clearTimeout(timer);
     }
     const newTimer = setTimeout(() => {
       setCurrentPage(1);
       setPosts([]);
-      fetchPosts(1, e.target.value); 
-    }, 1000); 
+      fetchPosts(1, e.target.value);
+    }, 1000);
     setTimer(newTimer);
   };
 
@@ -65,9 +65,9 @@ function HomePage() {
 
   // Intersection Observer for infinite scrolling
   useEffect(() => {
-    if(loading) return
+    if (loading) return
     if (observerRef.current) observerRef.current.disconnect();
-    
+
     observerRef.current = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
@@ -113,47 +113,39 @@ function HomePage() {
   }
 
   return (
-    <div className="w-full bg-gradient-to-b from-black via-[#14061F] to-black py-12">
-      <div className="w-full flex justify-center items-center mb-8">
+    <div className="w-full bg-black py-8">
+      <div className="w-full flex justify-center items-center mb-4">
         <SearchBar
           searchQuery={searchQuery}
           handleSearchChange={handleSearchChange}
           onClearSearch={handleClearSearch}
         />
       </div>
-      <div className="text-center mb-8">
-        <h2 className="text-5xl font-extrabold text-white tracking-tight leading-tight">
-          "Discover the Unseen, Explore the Unknown."
-        </h2>
-        <p className="text-xl text-gray-300 mt-4">
-          From the latest movie reviews to insightful blogs, uncover content
-          you’ve never seen before.
+
+      <div className="text-center mb-6 px-4">
+        <h2 className="text-3xl font-bold text-white">"Discover the Unseen, Explore the Unknown."</h2>
+        <p className="text-base text-gray-400 mt-2">
+          From the latest movie reviews to insightful blogs, uncover content you’ve never seen before.
         </p>
       </div>
 
-      <div className="sm:ml-5 w-full h-full flex flex-wrap sm:justify-center sm:items-center justify-center items-center gap-3 transition-all duration-500">
+      <div className="flex flex-wrap justify-center gap-2 px-2">
         {posts?.map((post) => (
-          <div
-            key={post._id}
-            className="p-4 w-full sm:w-[18rem] lg:w-[20rem] xl:w-[22rem] transition-transform transform hover:scale-105 animate__animated animate__fadeIn animate__delay-1s"
-          >
-            <PostCard {...post} />
-          </div>
+          <PostCard key={post._id} {...post} />
         ))}
 
-        {/* Black Skeleton Cards as placeholders */}
         {loadingMore &&
           Array.from({ length: postsPerPage }).map((_, index) => (
             <div
               key={`skeleton-${index}`}
-              className="p-6 w-full sm:w-[15rem] lg:w-[15rem] xl:w-[15rem] bg-black rounded-lg h-[300px] animate-pulse"
+              className="w-[11rem] h-[17rem] bg-gray-800 rounded-md animate-pulse"
             />
           ))}
       </div>
 
-      {/* Invisible Load More Trigger */}
-      {posts.length < totalPosts && <div id="loadMoreTrigger" className="w-full h-10 mt-6"></div>}
+      {posts.length < totalPosts && <div id="loadMoreTrigger" className="w-full h-10 mt-4"></div>}
     </div>
+
   );
 }
 
