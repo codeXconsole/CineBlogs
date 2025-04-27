@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { ScaleLoader } from "react-spinners";
-import { addLike, deletePost, getPostById, addDislike } from "../AppWrite/Apibase.js";
+import { addLike, getPostById, addDislike } from "../AppWrite/Apibase.js";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faL, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
@@ -24,7 +24,6 @@ export default function Post() {
   const [isLoading, setLoading] = useState(false);
 
   useEffect(() => {
-
     setLoading(true);
     if (postId) {
       getPostById(postId)
@@ -194,7 +193,7 @@ export default function Post() {
               Edit
             </button>
           </Link>
-          <DeletePost post={post} deletePost={deletePost} />
+          <DeletePost post={post} />
         </div>
       )}
 

@@ -6,7 +6,6 @@ import { useSelector } from "react-redux";
 import { getAllPostsByUser } from "../AppWrite/Apibase";
 import { useNavigate, useParams } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
-import BackButton from "../Components/BackButton";
 
 function AllPosts() {
   const { userId } = useParams();
@@ -88,7 +87,7 @@ function AllPosts() {
           key={post._id}
           className="transition-transform transform hover:scale-105 animate__animated animate__fadeIn animate__delay-1s"
         >
-          <PostCard {...post} />
+          <PostCard {...post} isLink={true} />
         </div>
       ))}
     </div>

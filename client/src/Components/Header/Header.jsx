@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useRef, useEffect } from 'react';
-import { LogoutBtn } from '../index';
 import { useDispatch } from "react-redux";
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -119,9 +118,6 @@ function Header() {
           )}
           {authStatus && (
             <>
-              <li>
-                <LogoutBtn />
-              </li>
               <ProfileDropdown userData={userData} />
             </>
           )}

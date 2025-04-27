@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
-import Modal from "react-modal"; // Install via `npm install react-modal`
+import Modal from "react-modal";
 import { useNavigate } from "react-router-dom";
+import { deletePost } from "../AppWrite/Apibase";
 
-Modal.setAppElement("#root"); // Ensure accessibility compliance
+Modal.setAppElement("#root");
 
-const DeletePost = ({ post, deletePost }) => {
+const DeletePost = ({ post }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const DeletePost = ({ post, deletePost }) => {
           },
           hideProgressBar: true,
         });
-        navigate("/");
+        navigate(-1);
       })
       .catch((error) => {
         toast.error(error.message || "An error occurred while deleting the post.", {

@@ -139,7 +139,7 @@ function HomePage() {
 
       <div className="flex flex-wrap justify-center gap-2 px-2">
         {posts?.map((post) => (
-          <PostCard key={post._id} {...post} />
+          <PostCard key={post._id} {...post} isLink={true} />
         ))}
 
         {loadingMore &&

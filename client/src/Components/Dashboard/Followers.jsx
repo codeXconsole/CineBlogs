@@ -1,19 +1,19 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
-import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { ScaleLoader } from 'react-spinners';
-import AuthorCard from "../Components/AuthorCard";
+import AuthorCard from "../../Components/AuthorCard";
+import { useSelector } from "react-redux";
  
-const MyFollowers = () => {
+const Followers = () => {
     const [user, setUser] = useState(null)
-    const { userId } = useParams();
+    const userData = useSelector((state) => state.Auth.userData);
     const authToken = localStorage.getItem('authToken');
     const [isLoading, setLoading] = useState(false);
     const getUser = async () => {
         setLoading(true);
         try {
-          const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API_BASE_URL}/api/v1/users/get-user/${userId}`, {
+          const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API_BASE_URL}/api/v1/users/get-user/${userData._id}`, {
             headers: {
               Authorization: `Bearer ${authToken}`,
             },
@@ -29,7 +29,7 @@ const MyFollowers = () => {
 
       useEffect(() => {
           getUser();
-      }, [userId]);
+      }, [userData._id]);
 
       if (isLoading) {
         return (
@@ -50,7 +50,7 @@ const MyFollowers = () => {
       }
 
       if (!isLoading) return (
-        <div className="w-full min-h-screen flex flex-col justify-start bg-gradient-to-b from-black via-[#0d0216] to-black py-16 px-">
+        <div className="w-full flex flex-col justify-start bg-gradient-to-b from-black via-[#0d0216] to-black">
       
           {/* No Followers message */}
           {user?.followers?.length === 0 ? (
@@ -73,4 +73,4 @@ const MyFollowers = () => {
       );    
 };
 
-export default MyFollowers;
+export default Followers;

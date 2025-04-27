@@ -46,7 +46,7 @@ function LogoutBtn() {
   return (
     <div>
       <button
-        className="inline-block px-6 py-2 duration-200 hover:text-blue-500 rounded-full"
+        className=""
         onClick={() => setModalOpen(true)}
         disabled={loading}
       >

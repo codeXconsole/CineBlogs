@@ -25,6 +25,7 @@ import UserProfile from "../src/Pages/UserProfile.jsx"
 import MyFollowers from "../src/Pages/MyFollowers.jsx"
 import MyFollowings from "../src/Pages/MyFollowings.jsx"
 import Authors from "./Pages/Authors.jsx";
+import DashBoard from "./Pages/DashBoard.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -36,6 +37,7 @@ const router = createBrowserRouter(
         <Route path="/" element={<HomePage />} />
         <Route path="/authors" element={<Authors />} />
         <Route path="/add-post" element={<SearchMovie />} />
+        <Route path="/dashboard" element={<DashBoard />} />
         <Route path="/all-posts/:userId" element={<AllPosts />} />
         <Route path="/edit-post/:postId" element={<EditPosts />} />
         <Route path="/post/:postId" element={<Post />} />

@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -28,6 +29,7 @@ const ProfileDropdown = ({ userData }) => {
   }, []);
 
   return (
+    <Link to="/dashboard">
     <li className="relative flex items-center mr-4 space-x-2" ref={dropdownRef}>
       <div onClick={toggleDropdown}>
         <div
@@ -37,34 +39,8 @@ const ProfileDropdown = ({ userData }) => {
           }}
         ></div>
       </div>
-
-      {isDropdownOpen && (
-        <ul className="absolute top-12 right-[1rem] w-52 bg-gray-900 border border-gray-700 rounded-xl shadow-lg z-50 text-white divide-y divide-gray-700">
-          {/* Profile Link */}
-          <Link to={`/profile/${userData?._id}`} className="text-sm font-medium">
-            <li
-              className="px-5 py-3 flex items-center space-x-2 hover:bg-gray-700 hover:scale-105 transition-transform duration-200 cursor-pointer rounded-t-xl"
-              onClick={closeDropdown}
-            >
-              <span>🧑‍💻</span>
-              My Profile
-            </li>
-          </Link>
-
-          {/* Followers Link */}
-          <Link to={`/followings/${userData?._id}`} className="text-sm font-medium">
-            <li
-              className="px-5 py-3 flex items-center space-x-2 hover:bg-gray-700 hover:scale-105 transition-transform duration-200 cursor-pointer rounded-b-xl"
-              onClick={closeDropdown}
-            >
-              <span>👥</span>
-              My Followings
-            </li>
-          </Link>
-        </ul>
-      )}
-
     </li>
+    </Link>
   );
 };
 
