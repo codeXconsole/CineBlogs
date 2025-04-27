@@ -3,7 +3,12 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
     status : false,
     userData: null,
-    movie: null
+    movie: null,
+    homePageData: {
+        data: [],
+        isDataLoaded: false,
+        currentPage: 1,
+    },
 }
 
 const AuthSlice = createSlice({
@@ -24,10 +29,15 @@ const AuthSlice = createSlice({
         },
         RemoveMovie: (state)=>{
             state.movie = null;
+        },
+        AddHomePageData: (state, action) => {
+            state.homePageData.data = action.payload.data;
+            state.homePageData.isDataLoaded = action.payload.isDataLoaded;
+            state.homePageData.currentPage = action.payload.currentPage;
         }
      }
 })
 
-export const {Login, Logout, AddMovie, RemoveMovie} = AuthSlice.actions;
+export const {Login, Logout, AddMovie, RemoveMovie, AddHomePageData } = AuthSlice.actions;
 
 export default AuthSlice.reducer;

@@ -1,11 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable no-unused-vars */
 import { useEffect, useState, useRef, useCallback } from "react";
 import { PostCard } from "../Components";
-import { useSelector } from "react-redux";
 import { getAllPostsInHomePage } from "../AppWrite/Apibase";
 import SearchBar from "../utility/SearchBar";
 import { ScaleLoader } from "react-spinners";
+import { useDispatch, useSelector } from "react-redux";
+import { AddHomePageData } from "../Store/AuthSlice";
 
 function HomePage() {
   const [posts, setPosts] = useState([]);
@@ -16,8 +18,8 @@ function HomePage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [timer, setTimer] = useState(null);
   const observerRef = useRef(null);
-  const postsPerPage = 8;
-
+  const postsPerPage = 16;
+  const dispatch = useDispatch();
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
 
@@ -39,7 +41,9 @@ function HomePage() {
 
     try {
       const { posts: newPosts, postCount } = await getAllPostsInHomePage(authToken, search, page, postsPerPage);
-      setPosts((prevPosts) => (page === 1 ? newPosts : [...prevPosts, ...newPosts]));
+      const updatedPosts = page === 1 ? newPosts : [...posts, ...newPosts];
+      setPosts(updatedPosts);
+      dispatch(AddHomePageData({ data: updatedPosts, isDataLoaded: true, currentPage }));
       setTotalPosts(postCount);
     } catch (error) {
       console.error("Error fetching posts:", error);
@@ -49,10 +53,16 @@ function HomePage() {
     setLoadingMore(false);
   };
 
+  const { homePageData } = useSelector((state) => state.Auth);
   useEffect(() => {
-    fetchPosts(1, searchQuery);
+    if (homePageData.isDataLoaded && homePageData.data.length > 0 && (homePageData.currentPage > currentPage)) {
+      setPosts(homePageData.data);
+      setLoading(false);
+    } else {
+      fetchPosts(1, searchQuery);
+    }
   }, []);
-
+  
   const loadMorePosts = useCallback(() => {
     if (!loadingMore && posts.length < totalPosts) {
       setCurrentPage((prevPage) => {
@@ -91,8 +101,6 @@ function HomePage() {
     setPosts([]);
     fetchPosts(1);
   };
-
-  const userStatus = useSelector((state) => state.Auth.status);
 
   if (loading) {
     return (

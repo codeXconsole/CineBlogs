@@ -24,7 +24,7 @@ import AllPosts from "../src/Pages/AllPosts.jsx"
 import UserProfile from "../src/Pages/UserProfile.jsx"
 import MyFollowers from "../src/Pages/MyFollowers.jsx"
 import MyFollowings from "../src/Pages/MyFollowings.jsx"
-import Artists from "../src/Pages/Artists.jsx";
+import Authors from "./Pages/Authors.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -34,7 +34,7 @@ const router = createBrowserRouter(
       <Route path="/signup" element={<SignUpPage />} />
       <Route element = {<ProtectRoute/>}>
         <Route path="/" element={<HomePage />} />
-        <Route path="/artists" element={<Artists />} />
+        <Route path="/authors" element={<Authors />} />
         <Route path="/add-post" element={<SearchMovie />} />
         <Route path="/all-posts/:userId" element={<AllPosts />} />
         <Route path="/edit-post/:postId" element={<EditPosts />} />

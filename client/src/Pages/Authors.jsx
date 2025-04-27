@@ -1,14 +1,13 @@
 /* eslint-disable no-unused-vars */
-// Artists.jsx
 /* eslint-disable react/no-unescaped-entities */
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { useSelector } from "react-redux";
 import SearchBar from "../utility/SearchBar";
 import { ScaleLoader } from "react-spinners";
 import { getAllArtists } from "../AppWrite/Apibase";
-import ArtistCard from "../Components/ArtistCard";
+import UserCard from "../Components/UserCard";
+import AuthorCard from "../Components/AuthorCard";
 
-function Artists() {
+function Authors() {
   const [artists, setArtists] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -17,7 +16,7 @@ function Artists() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [timer, setTimer] = useState(null);
   const observerRef = useRef(null);
-  const artistsPerPage = 8;
+  const artistsPerPage = 16;
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -131,13 +130,13 @@ function Artists() {
           <p className="text-xl text-gray-400">No artists found for the search query. Please try another one!</p>
         </div>
       ) : (
-        <div className="sm:ml-5 w-full h-full flex flex-wrap sm:justify-center sm:items-center justify-center items-center gap-3 transition-all duration-500">
+        <div className="sm:ml-5 w-full h-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 transition-all duration-500">
           {artists?.map((artist) => (
             <div
               key={artist._id}
-              className="p-4 w-full sm:w-[18rem] lg:w-[20rem] xl:w-[22rem] transition-transform transform hover:scale-105 animate__animated animate__fadeIn animate__delay-1s"
+              className="p-2 transition-transform transform hover:scale-105 animate__animated animate__fadeIn animate__delay-1s"
             >
-              <ArtistCard {...artist} />
+              <AuthorCard userData={artist} />
             </div>
           ))}
 
@@ -145,7 +144,7 @@ function Artists() {
             Array.from({ length: artistsPerPage }).map((_, index) => (
               <div
                 key={`skeleton-${index}`}
-                className="p-6 w-full sm:w-[15rem] lg:w-[15rem] xl:w-[15rem] bg-black rounded-lg h-[300px] animate-pulse"
+                className="p-2 bg-black rounded-lg h-[250px] animate-pulse"
               />
             ))}
         </div>
@@ -156,4 +155,4 @@ function Artists() {
   );
 }
 
-export default Artists;
+export default Authors;

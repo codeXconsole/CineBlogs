@@ -117,12 +117,12 @@ export const getAllPostsInHomePage = async (authToken, search, page) => {
   }
 };
 
-export const getAllArtists = async (authToken, search, page) => {
+export const getAllArtists = async (authToken, search, page, artistsPerPage) => {
   try {
     const params = {
       search: search || "",
       page: page || 1,
-      limit: 8,
+      limit: artistsPerPage || 10,
     };
     
     const response = await axios.get(`${apiBaseUrl}/api/v1/users/artists`, {
