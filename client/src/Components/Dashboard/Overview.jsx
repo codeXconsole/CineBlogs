@@ -28,7 +28,7 @@ export default function Overview() {
               <h4 className="text-lg font-bold">Followers</h4>
             </div>
             <div className="mt-3 text-center font-semibold text-3xl">
-              {userData?.followers.length || 0}
+              {userData?.followers?.length || 0}
             </div>
           </div>
 

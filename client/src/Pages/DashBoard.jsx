@@ -3,7 +3,8 @@ import Profile from "../Components/Dashboard/Profile";
 import LogoutBtn from "../Components/Header/LogoutBtn";
 import Overview from "../Components/Dashboard/Overview";
 import MyPosts from "../Components/Dashboard/MyPosts";
-import Followers from "../Components/Dashboard/Followers";
+import Followers from "../Components/Dashboard/Followers.jsx";
+import Followings from "../Components/Dashboard/Followings";
 
 function DashBoard() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -55,8 +56,7 @@ function DashBoard() {
         )}
         {activeTab === 'followings' && (
           <section>
-            <h2 className="text-2xl font-semibold mb-6 text-white">Followings</h2>
-            <p className="text-sm">People you are following.</p>
+            <Followings />
           </section>
         )}
         {activeTab === 'posts' && (
