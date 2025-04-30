@@ -39,15 +39,7 @@ const Followers = () => {
 
   if (isLoading) {
     return (
-      <div className="w-full flex flex-col justify-center items-center h-screen bg-gradient-to-b from-black via-[#14061F] to-black py-12">
-        <div className="p-4 w-full flex flex-col justify-center items-center">
-          <h1 className="text-4xl font-semibold text-white text-center">
-            "Patience, the Best Stories Are Worth the Wait."
-          </h1>
-          <p className="text-lg mt-2 text-gray-300 text-center">
-            We’re brewing something great! Check back soon for fresh content.
-          </p>
-        </div>
+      <div className="flex w-creen h-screen justify-center items-start mt-40">
         <div className="mt-16">
           <ScaleLoader color="#ffffff" height={50} />
         </div>
@@ -56,7 +48,7 @@ const Followers = () => {
   }
 
   return (
-    <div className="flex flex-row justify-between items-start w-full min-h-screen px-8 md:px-12 gap-6 py-8 bg-gradient-to-b from-black via-[#0d0216] to-black">
+    <div className="flex flex-row justify-between items-start w-full min-h-screen px-8 md:px-12 gap-6 py-8">
       
       {/* Followers Grid */}
       <div className="w-3/4">
@@ -115,10 +107,10 @@ const Followers = () => {
 
             {/* Extra Info */}
             <div className="flex flex-col gap-2 text-sm">
-              <div className="flex justify-between">
+              {/* <div className="flex justify-between">
                 <p className="text-gray-400">Joined:</p>
                 <p>{selectedFollower?.createdAt}</p>
-              </div>
+              </div> */}
               <div className="flex justify-between">
                 <p className="text-gray-400">Posts:</p>
                 <p>{selectedFollower?.totalPosts || 0}</p>

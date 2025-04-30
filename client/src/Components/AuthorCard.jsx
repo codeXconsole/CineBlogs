@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
 
-function AuthorCard({ userData, className }) {
+function AuthorCard({ userData, className, viewProfileBtn }) {
   return (
     <div
       className={`relative mx-2 sm:mx-0 w-[10rem] sm:w-[12rem] border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-md transition-all transform hover:-translate-y-1 hover:scale-[1.02] duration-300 ${className}`}
@@ -41,13 +41,15 @@ function AuthorCard({ userData, className }) {
       </div> */}
 
       {/* View Profile Button */}
-      {/* <div className="mt-4 mb-4 px-4">
-        <Link to={`/profile/${userData?.user?._id || userData._id}`}>
-          <button className="w-full py-2 text-[11px] bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all duration-300">
-            View Profile
-          </button>
-        </Link>
-      </div> */}
+      {
+        viewProfileBtn && <div className="mt-4 mb-4 px-4">
+          <Link to={`/profile/${userData?.user?._id || userData._id}`}>
+            <button className="w-full py-2 text-[11px] bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all duration-300">
+              View Profile
+            </button>
+          </Link>
+        </div>
+      }
     </div>
   );
 }

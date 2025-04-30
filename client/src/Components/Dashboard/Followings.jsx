@@ -10,7 +10,7 @@ const Followings = () => {
   const userData = useSelector((state) => state.Auth.userData);
   const authToken = localStorage.getItem("authToken");
   const [isLoading, setLoading] = useState(false);
-  const [selectedFollowing, setSelectedFollowing] = useState(null); // for sidebar
+  const [selectedFollowing, setSelectedFollowing] = useState(null);
 
   const getUser = async () => {
     setLoading(true);
@@ -26,7 +26,6 @@ const Followings = () => {
       const followings = response.data.data;
       setFollowings(followings);
       setSelectedFollowing(followings[0].user);
-      console.log(followings[0]); // default select first following
       setLoading(false);
     } catch (error) {
       console.error(error);
@@ -40,15 +39,7 @@ const Followings = () => {
 
   if (isLoading) {
     return (
-      <div className="w-full h-screen flex flex-col justify-center items-center bg-gradient-to-b from-black via-[#14061F] to-black py-12">
-        <div className="p-4 w-full flex flex-col justify-center items-center">
-          <h1 className="text-4xl font-semibold text-white text-center">
-            "Patience, the Best Stories Are Worth the Wait."
-          </h1>
-          <p className="text-lg mt-2 text-gray-300 text-center">
-            We’re brewing something great! Check back soon for fresh content.
-          </p>
-        </div>
+      <div className="flex w-creen h-screen justify-center items-start mt-40">
         <div className="mt-16">
           <ScaleLoader color="#ffffff" height={50} />
         </div>
@@ -77,7 +68,7 @@ const Followings = () => {
               <div
                 key={index}
                 className="flex justify-center items-center cursor-pointer"
-                onClick={() => setSelectedFollowing(follower)}
+                onClick={() => setSelectedFollowing(follower.user)}
               >
                 <AuthorCard userData={follower} index={index} />
               </div>

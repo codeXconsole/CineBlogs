@@ -72,7 +72,6 @@ function Header() {
     { name: "Authors", slug: "/authors", active: authStatus },
     { name: "Login", slug: "/login", active: !authStatus },
     { name: "Create Account", slug: "/signup", active: !authStatus },
-    { name: "My Posts", slug: `/all-posts/${userData?._id}`, active: authStatus },
     { name: "Add Post", slug: "/add-post", active: authStatus },
   ];
 

@@ -38,3 +38,11 @@ background: linear-gradient(45deg, #6f42c1, #9b4dca);
 .load-more-btn:active {
 transform: scale(1.05);
 }
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.4);
+  border-radius: 4px;
+}

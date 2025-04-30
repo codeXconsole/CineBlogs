@@ -136,7 +136,7 @@ function Authors() {
               key={artist._id}
               className="p-2 transition-transform transform hover:scale-105 animate__animated animate__fadeIn animate__delay-1s"
             >
-              <AuthorCard userData={artist} />
+              <AuthorCard userData={artist} viewProfileBtn={true}/>
             </div>
           ))}
 
