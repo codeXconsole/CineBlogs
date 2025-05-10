@@ -8,7 +8,6 @@
     "dev": "nodemon ./index.js ",
     "start": "node ./index.js",
     "build": "yarn install && echo 'No build step required'"
-
   },
   "engines": {
     "node": "22.x"
@@ -27,6 +26,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.10.0",
     "mongoose": "^8.8.0",
-    "multer": "^1.4.5-lts.1"
+    "multer": "^1.4.5-lts.1",
+    "socket.io": "^4.8.1"
   }
 }

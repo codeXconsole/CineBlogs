@@ -10,8 +10,6 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
-import { lazy, Suspense } from "react";
-import { ScaleLoader } from "react-spinners";
 import ProtectRoute from "./utility/ProtectRoute.jsx";
 import HomePage from "../src/Pages/HomePage.jsx"
 import Login from "./Components/Login.jsx";
@@ -26,6 +24,8 @@ import MyFollowers from "../src/Pages/MyFollowers.jsx"
 import MyFollowings from "../src/Pages/MyFollowings.jsx"
 import Authors from "./Pages/Authors.jsx";
 import DashBoard from "./Pages/DashBoard.jsx";
+import Chat from "./Pages/Chat.jsx";
+import Conversations from "./Pages/Conversations.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -46,6 +46,8 @@ const router = createBrowserRouter(
         <Route path="/profile/:userId" element={<UserProfile />} />
         <Route path="/followers/:userId" element={<MyFollowers />} />
         <Route path="/followings/:userId" element={<MyFollowings />} />
+        <Route path="/chat/:userId" element={<Chat />} />
+        <Route path="/conversations" element={<Conversations />} />
       </Route>
     </Route>
   )

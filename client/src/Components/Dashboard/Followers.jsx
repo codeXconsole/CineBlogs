@@ -4,6 +4,7 @@ import axios from "axios";
 import { ScaleLoader } from "react-spinners";
 import AuthorCard from "../../Components/AuthorCard";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 const Followers = () => {
   const [user, setUser] = useState(null);
@@ -107,10 +108,6 @@ const Followers = () => {
 
             {/* Extra Info */}
             <div className="flex flex-col gap-2 text-sm">
-              {/* <div className="flex justify-between">
-                <p className="text-gray-400">Joined:</p>
-                <p>{selectedFollower?.createdAt}</p>
-              </div> */}
               <div className="flex justify-between">
                 <p className="text-gray-400">Posts:</p>
                 <p>{selectedFollower?.totalPosts || 0}</p>
@@ -118,9 +115,11 @@ const Followers = () => {
             </div>
 
             {/* Action Button */}
+            <Link to={`/dashboard`}>
             <button className="mt-4 py-2 w-full rounded-full bg-purple-600 hover:bg-purple-700 transition text-white font-semibold">
               Message
             </button>
+            </Link>
           </>
         ) : (
           <p className="text-center text-gray-400">Select a follower to view profile</p>

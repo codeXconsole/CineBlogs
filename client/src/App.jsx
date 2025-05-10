@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import './App.css'
 import {Login, Logout} from "./Store/AuthSlice"
-import { Footer, Header } from './Components'
+import { Header } from './Components'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';

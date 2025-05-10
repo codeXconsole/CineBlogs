@@ -345,3 +345,48 @@ export const addDislike = async (postId, token) => {
     throw new Error(error.response?.data?.message || "Failed to like");
   }
 };
+
+export const sendMessageAPI = async (messageData, token) => {
+  try {
+    const response = await axios.post(`${apiBaseUrl}/api/v1/message/send`, messageData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to send message");
+  }
+};
+
+export const getMessagesAPI = async (selectedUserId, token) => {
+  try {
+    const response = await axios.get(
+      `${apiBaseUrl}/api/v1/message/all/${selectedUserId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch messages");
+  }
+};
+
+export const getAllConversations = async (token) => {
+  try {
+    const response = await axios.get(
+      `${apiBaseUrl}/api/v1/message/conversations`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch messages");
+  }
+};

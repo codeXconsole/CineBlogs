@@ -73,6 +73,7 @@ function Header() {
     { name: "Login", slug: "/login", active: !authStatus },
     { name: "Create Account", slug: "/signup", active: !authStatus },
     { name: "Add Post", slug: "/add-post", active: authStatus },
+    // { name: "Chat", slug: `/conversations`, active: authStatus },
   ];
 
   return (
