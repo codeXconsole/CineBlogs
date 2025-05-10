@@ -198,6 +198,18 @@ function Header() {
                           My Followers
                         </Link>
                       </li>
+                      <li
+                        className="px-5 py-3 flex items-center space-x-2 hover:bg-gray-700 hover:scale-105 transition-transform duration-200 cursor-pointer rounded-b-xl"
+                        onClick={() => {
+                          setIsDropdownOpen(false);
+                          setIsMobileNavVisible(false);
+                        }}
+                      >
+                        <span>👥</span>
+                        <Link to={`/conversations`} className="text-sm font-medium">
+                          Conversations
+                        </Link>
+                      </li>
                     </ul>
                   )}
                 </li>

@@ -115,7 +115,7 @@ const Followers = () => {
             </div>
 
             {/* Action Button */}
-            <Link to={`/dashboard`}>
+            <Link to={`/chat/${selectedFollower?._id}`}>
             <button className="mt-4 py-2 w-full rounded-full bg-purple-600 hover:bg-purple-700 transition text-white font-semibold">
               Message
             </button>

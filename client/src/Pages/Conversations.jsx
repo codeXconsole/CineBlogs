@@ -4,8 +4,8 @@ import { Link, useParams } from "react-router-dom";
 import { getAllConversations, getMessagesAPI } from "../AppWrite/Apibase";
 import { useSelector } from "react-redux";
 import io from "socket.io-client";
-
-const socket = io("http://localhost:8080");
+const apiBaseUrl = import.meta.env.VITE_REACT_APP_API_BASE_URL;
+const socket = io(apiBaseUrl);
 
 const Conversations = () => {
   const [conversations, setConversations] = useState([]);
