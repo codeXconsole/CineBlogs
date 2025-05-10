@@ -41,6 +41,24 @@ const Conversations = () => {
     }
   };
 
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("receiveMessage", (message) => {
+      if (
+        activeChatUser &&
+        (message.senderId === activeChatUser._id || message.receiverId === activeChatUser._id)
+      ) {
+        setMessages((prev) => [...prev, message]);
+      }
+    });
+
+    return () => {
+      socket.off("receiveMessage");
+    };
+  }, [activeChatUser]);
+
+
   const sendMessage = () => {
     if (!input.trim() || !activeChatUser) return;
     const messageData = {
@@ -49,7 +67,6 @@ const Conversations = () => {
       content: input.trim(),
     };
     socket.emit("sendMessage", messageData);
-    setMessages((prev) => [...prev, messageData]);
     setInput("");
   };
 
@@ -80,9 +97,8 @@ const Conversations = () => {
               <div
                 key={index}
                 onClick={() => loadMessages(otherUser)}
-                className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-[#2f2f2f] ${
-                  activeChatUser?._id === otherUser._id ? "bg-[#2f2f2f]" : ""
-                }`}
+                className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-[#2f2f2f] ${activeChatUser?._id === otherUser._id ? "bg-[#2f2f2f]" : ""
+                  }`}
               >
                 <div className="flex items-center space-x-3">
                   <img
@@ -125,11 +141,10 @@ const Conversations = () => {
                 return (
                   <div key={i} className={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
                     <div
-                      className={`max-w-[70%] px-4 py-2 rounded-lg text-white break-words text-sm shadow-md ${
-                        isOwn
+                      className={`max-w-[70%] px-4 py-2 rounded-lg text-white break-words text-sm shadow-md ${isOwn
                           ? "bg-blue-600 rounded-bl-none"
                           : "bg-gray-800 rounded-br-none"
-                      }`}
+                        }`}
                     >
                       {msg.content}
                     </div>
