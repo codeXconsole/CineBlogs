@@ -57,7 +57,7 @@ function MyPosts() {
 
   if (posts.length === 0 && userStatus === true && !isLoading) {
     return (
-      <div className="w-full h-full py-8 mt-4 flex justify-center items-center text-center">
+      <div className="w-full h-full py-8 mt-4 flex justify-center items-start text-center">
         <div className="max-w-lg">
           <h1 className="text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 mb-4">
             No Posts Yet
@@ -135,13 +135,6 @@ function MyPosts() {
                   {/* Modal Content */}
                   <div className="p-6 max-h-[80vh] overflow-y-auto custom-scrollbar">
                     <h2 className="text-2xl font-bold mb-4">{selectedPost.title}</h2>
-                    {/* <div className="w-[10rem] h-full mb-4">
-                      <img
-                        src={selectedPost.image}
-                        alt={selectedPost.title}
-                        className="w-full h-full object-cover rounded-lg"
-                      />
-                    </div> */}
                     <p className="text-gray-800 leading-relaxed whitespace-pre-line">
                       {selectedPost.content}
                     </p>
@@ -149,7 +142,6 @@ function MyPosts() {
                 </div>
               </div>
             )}
-
           </div>
         ) : (
           <p className="text-center text-gray-300">Select a post to view details</p>

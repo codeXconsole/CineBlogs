@@ -34,7 +34,7 @@ export default function Profile() {
       setEmail(user.email || '');
       setBio(user.bio || '');
     }
-  }, [user]);  
+  }, [user]);
   const inputFields = [
     { label: 'Username', name: 'username', type: 'text' },
     { label: 'Email', name: 'email', type: 'email' },
@@ -58,7 +58,13 @@ export default function Profile() {
         if (isAuthor) {
           dispatch(Login({ user: response.data, token: authToken }));
         }
-        toast.success("Profile updated successfully!");
+        toast.success("Profile updated successfully!", {
+          style: {
+            backgroundColor: "#2e1065",
+            color: "#ffffff",
+          },
+          hideProgressBar: true,
+        });
       } catch (error) {
         toast.error("Error updating profile!");
       } finally {
@@ -75,23 +81,23 @@ export default function Profile() {
     }
   }, []);
 
-if (isLoading) {
+  if (isLoading) {
     return (
-    <div className="w-full flex flex-col justify-center items-center bg-gradient-to-b from-black via-[#1e022c] to-black py-12">
+      <div className="w-full flex flex-col justify-center items-center bg-black py-12">
         <div className="p-4 w-full flex flex-col justify-center items-center">
-        <h1 className="text-4xl font-semibold text-white">
+          <h1 className="text-4xl font-semibold text-white">
             "Patience, the Best Stories Are Worth the Wait."
-        </h1>
-        <p className="text-lg mt-2 text-gray-300">
+          </h1>
+          <p className="text-lg mt-2 text-gray-300">
             We’re brewing something great! Check back soon for fresh content.
-        </p>
+          </p>
         </div>
         <div className='mt-[5rem]'>
-        <ScaleLoader color="#ffffff" height={50} />
+          <ScaleLoader color="#ffffff" height={50} />
         </div>
-    </div>
+      </div>
     );
-}
+  }
 
   return (
     <div className="bg-transparent min-h-screen flex flex-col items-center px-4">

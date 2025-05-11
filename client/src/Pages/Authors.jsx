@@ -117,7 +117,7 @@ function Authors() {
         />
       </div>
       <div className="text-center mb-8">
-        <h2 className="text-5xl font-extrabold text-white tracking-tight leading-tight">
+        <h2 className="text-3xl font-extrabold text-white tracking-tight leading-tight">
           "Explore the Faces Behind the Frames"
         </h2>
         <p className="text-xl text-gray-300 mt-4">

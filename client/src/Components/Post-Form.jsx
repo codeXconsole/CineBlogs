@@ -377,7 +377,7 @@ export default function PostForm({ post }) {
           type="submit"
           className="w-full sm:w-[20rem] mt-5 py-4 bg-teal-600 text-white rounded-xl font-semibold shadow-xl hover:bg-teal-700 hover:scale-105 transition"
         >
-          {post ? "Update" : "Submit"}
+          {post ? "Update" : "Publish"}
         </Button>
       </div>
     </form>

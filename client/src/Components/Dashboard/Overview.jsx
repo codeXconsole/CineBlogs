@@ -1,9 +1,18 @@
 import { useSelector } from 'react-redux';
+import { ScaleLoader } from 'react-spinners';
 
 export default function Overview() {
   const user = useSelector((state) => state.Auth.userData);
 
-  if (!user) return <div className="text-white p-4">Loading user...</div>;
+  if (!user) {
+    return (
+      <div className="flex w-full h-screen justify-center items-start mt-40">
+        <div className="mt-16">
+          <ScaleLoader color="#ffffff" height={50} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-black min-h-screen text-white p-6">
@@ -29,19 +38,21 @@ export default function Overview() {
         </div>
 
         {/* Profile Info with Profile Pic */}
-        <div className="bg-[#242424] p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out flex items-center space-x-6">
+        {/* <div className="bg-[#242424] p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out flex items-center space-x-6">
           <img
             src={user.profileImage || "/default-avatar.png"}
             alt="Profile"
             className="w-20 h-20 rounded-full object-cover border-2 border-gray-600"
           />
-          <div>
+          <div className="flex flex-col">
             <p className="text-sm text-gray-400 mb-1">Profile</p>
             <h2 className="text-2xl font-semibold text-white">{user.username}</h2>
-            <p className="text-sm text-gray-500">{user.email}</p>
+            <p className="text-sm text-gray-500 w-20 truncate">{user.email}</p>
           </div>
-        </div>
+        </div> */}
+
       </div>
     </div>
+
   );
 }
