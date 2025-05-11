@@ -1,71 +1,41 @@
-import { useState } from "react";
-import Profile from "../Components/Dashboard/Profile";
+import { NavLink, Outlet } from "react-router-dom";
 import LogoutBtn from "../Components/Header/LogoutBtn";
-import MyPosts from "../Components/Dashboard/MyPosts";
-import Followers from "../Components/Dashboard/Followers.jsx";
-import Followings from "../Components/Dashboard/Followings";
-import Conversations from "./Conversations.jsx";
+import { useSelector } from "react-redux";
 
 function DashBoard() {
-  const [activeTab, setActiveTab] = useState('conversations');
-
   const tabs = [
-    { label: "Conversations", key: "conversations" },
-    { label: "Followers", key: "followers" },
-    { label: "Followings", key: "followings" },
-    { label: "My Posts", key: "posts" },
-    { label: "Settings", key: "settings" },
+    { label: "Overview", key: "overview", path: "/dashboard/overview" },
+    { label: "Followers", key: "followers", path: "/dashboard/followers" },
+    { label: "Followings", key: "followings", path: "/dashboard/followings" },
+    { label: "My Posts", key: "posts", path: "/dashboard/posts" },
+    { label: "Settings", key: "settings", path: "/dashboard/settings" },
   ];
+  const userData = useSelector((state) => state.Auth.userData);
 
   return (
     <div className="flex w-full min-h-screen text-gray-300">
       <aside className="w-56 border-r border-gray-700 p-4 flex flex-col text-sm">
-
         <nav className="flex flex-col space-y-1">
           {tabs.map((tab) => (
-            <button
+            <NavLink
               key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`text-left px-3 py-2 rounded-md hover:bg-[#21262d] transition 
-              ${activeTab === tab.key ? 'bg-[#21262d] text-white' : ''}`}
+              to={tab.key === "overview" ? tab.path : `${tab.path}/${userData?._id}`}
+              className={({ isActive }) =>
+                `text-left px-3 py-2 rounded-md hover:bg-[#21262d] transition ${isActive ? "bg-[#21262d] text-white" : ""
+                }`
+              }
             >
               {tab.label}
-            </button>
+            </NavLink>
           ))}
-
           <button className="text-left px-3 py-2 mt-8 rounded-md text-red-400 hover:bg-[#21262d] transition">
-            <LogoutBtn/>
+            <LogoutBtn />
           </button>
         </nav>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 p-8">
-        {activeTab === 'conversations' && (
-          <section>
-            <Conversations />
-          </section>
-        )}
-        {activeTab === 'followers' && (
-          <section>
-            <Followers />
-          </section>
-        )}
-        {activeTab === 'followings' && (
-          <section>
-            <Followings />
-          </section>
-        )}
-        {activeTab === 'posts' && (
-          <section>
-            <MyPosts/>
-          </section>
-        )}
-        {activeTab === 'settings' && (
-          <section>
-            <Profile />
-          </section>
-        )}
+        <Outlet />
       </main>
     </div>
   );

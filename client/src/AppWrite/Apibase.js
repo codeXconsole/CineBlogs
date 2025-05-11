@@ -390,3 +390,52 @@ export const getAllConversations = async (token) => {
     throw new Error(error.response?.data?.message || "Failed to fetch messages");
   }
 };
+
+export const getFollowers = async ( userId, token) => {
+  try {
+    const response = await axios.get(
+      `${apiBaseUrl}/api/v1/users/followers/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch messages");
+  }
+};
+
+export const getFollowings = async ( userId, token) => {
+  try {
+    const response = await axios.get(
+      `${apiBaseUrl}/api/v1/users/followings/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch messages");
+  }
+};
+
+export const reactToPost = async (postId, value, token) => {
+  try {
+    const response = await axios.post(
+      `${apiBaseUrl}/api/v1/posts/react/${postId}`,
+      { value },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to react to post");
+  }
+};

@@ -126,7 +126,7 @@ const getAllArtists = async (req, res) => {
         }
       },
       {
-        $sort: { postCount: -1, username: 1  }
+        $sort: { postCount: -1, username: 1 }
       },
       {
         $skip: (page - 1) * limit
@@ -158,7 +158,6 @@ const getAllArtists = async (req, res) => {
   }
 };
 
-
 const getUserById = async (req, res) => {
   try {
     const userId = req.params.id
@@ -170,11 +169,13 @@ const getUserById = async (req, res) => {
 
     const posts = await Post.countDocuments({ userId: userId })
 
-    const followers = await Follow.find({ userId })
+    const followers = await Follow.countDocuments({ userId })
+    const isFollowing = await Follow.findOne({ userId: userId, follower: req.user._id })
     const userData = {
       ...user.toObject(),
-      followers: followers.length > 0 ? followers : [],
-      posts
+      followers,
+      posts,
+      is_following: isFollowing ? true : false,
     };
     return successResponse({ res, message: "User found successfully", data: userData });
   } catch (error) {
@@ -199,55 +200,44 @@ const follow = async (req, res) => {
       return errorResponse(res, "You cannot follow yourself");
     }
 
-    // Fetch both users in parallel
-    const [follower, user] = await Promise.all([
-      User.findById(userId),
-      User.findById(followId),
-    ]);
-
-    if (!follower || !user) {
-      return errorResponse(res, "User not found");
-    }
-
-    // Check if already following
     const followExists = await Follow.findOne({
       userId: followId,
-      "follower._id": userId,
+      follower: userId,
     });
 
     if (followExists) {
-      // Unfollow
-      await Follow.deleteOne({
-        userId: followId,
-        "follower._id": userId,
+      // Unfollow logic
+      await Promise.all([
+        Follow.deleteOne({ userId: followId, follower: userId }),
+        User.updateOne({ _id: followId }, { $inc: { followers: -1 } }),
+        User.updateOne({ _id: userId }, { $inc: { followings: -1 } }),
+      ]);
+
+      return successResponse({
+        res,
+        message: "Unfollowed successfully",
+        data: {},
       });
-      return successResponse({ res, message: "Unfollowed successfully", data: {} });
     }
 
-    // Follow
-    await Follow.create({
-      userId: followId,
-      user: {
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        profileImage: user.profileImage || null,
-      },
-      follower: {
-        _id: follower._id,
-        username: follower.username,
-        email: follower.email,
-        profileImage: follower.profileImage || null,
-      },
+    // Follow logic
+    await Promise.all([
+      Follow.create({ userId: followId, follower: userId }),
+      User.updateOne({ _id: followId }, { $inc: { followers: 1 } }),
+      User.updateOne({ _id: userId }, { $inc: { followings: 1 } }),
+    ]);
+
+    return successResponse({
+      res,
+      message: "Followed successfully",
+      data: {},
     });
 
-    return successResponse({ res, message: "Followed successfully", data: {} });
   } catch (error) {
     console.error(error);
-    return catchResponse(res, "Error occurred in following", error.message);
+    return catchResponse(res, "Error occurred in follow/unfollow", error.message);
   }
 };
-
 
 const updateUserProfile = async (req, res) => {
   try {
@@ -300,19 +290,91 @@ const updateUserProfile = async (req, res) => {
 
 const getUserFollowings = async (req, res) => {
   try {
-    const userId = req.params.userId
+    const userId = req.params.userId;
     if (!mongoose.isValidObjectId(userId)) {
-      return errorResponse(res, "Invalid id")
+      return errorResponse(res, "Invalid id");
     }
 
-    const followings = await Follow.find({ 'follower._id': userId });
-    return successResponse({ res, message: "Get followings successfully", data: followings });
+    const followings = await Follow.aggregate([
+      { $match: { follower: new mongoose.Types.ObjectId(userId) } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "followingData"
+        }
+      },
+      { $unwind: "$followingData" },
+      {
+        $project: {
+          _id: "$followingData._id",
+          username: "$followingData.username",
+          email: "$followingData.email",
+          profileImage: "$followingData.profileImage",
+          posts: "$followingData.posts",
+          followers: "$followingData.followers",
+          followings: "$followingData.followings",
+        }
+      }
+    ]);
+
+    return successResponse({
+      res,
+      message: "Fetched followings successfully",
+      data: followings
+    });
 
   } catch (error) {
-    console.log(error)
-    return catchResponse(res, "Error occured in get followings", error.message)
+    console.error(error);
+    return catchResponse(res, "Error occurred in get followings", error.message);
   }
-}
+};
+
+
+const getUserFollowers = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    if (!mongoose.isValidObjectId(userId)) {
+      return errorResponse(res, "Invalid id");
+    }
+
+    const followers = await Follow.aggregate([
+      { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "follower",
+          foreignField: "_id",
+          as: "followerData"
+        }
+      },
+      { $unwind: "$followerData" },
+      {
+        $project: {
+          _id: "$followerData._id",
+          username: "$followerData.username",
+          email: "$followerData.email",
+          profileImage: "$followerData.profileImage",
+          posts: "$followerData.posts",
+          followers: "$followerData.followers",
+          followings: "$followerData.followings",
+        }
+      }
+    ]);
+
+    return successResponse({
+      res,
+      message: "Fetched followers successfully",
+      data: followers
+    });
+
+  } catch (error) {
+    console.log(error);
+    return catchResponse(res, "Error occurred in get followers", error.message);
+  }
+};
+
 
 export {
   createUser,
@@ -323,5 +385,6 @@ export {
   getCurrentUser,
   follow,
   updateUserProfile,
-  getUserFollowings
+  getUserFollowings,
+  getUserFollowers
 }

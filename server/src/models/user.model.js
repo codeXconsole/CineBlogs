@@ -23,6 +23,15 @@ const userSchema = new Schema(
     profileImage: {
       type: String,
     },
+    posts: {
+      type: Number,
+    },
+    followers: {
+      type: Number,
+    },
+    followings: {
+      type: Number,
+    },
     password: {
       type: String,
       required: [true, "Password Is Required"],

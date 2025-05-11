@@ -1,20 +1,21 @@
-import React, { useEffect, useState, useCallback } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { ScaleLoader } from "react-spinners";
-import { addLike, getPostById, addDislike } from "../AppWrite/Apibase.js";
+import { getPostById, reactToPost } from "../AppWrite/Apibase.js";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faL, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
+import { faThumbsDown } from '@fortawesome/free-solid-svg-icons';
 import { faThumbsUp, faShare } from '@fortawesome/free-solid-svg-icons';
 import DeletePost from "../Components/DeletePost.jsx";
-import BackButton from "../Components/BackButton.jsx";
 
 export default function Post() {
   const [post, setPost] = useState(null);
   const [isAuthor, setAuthor] = useState(false);
   const token = localStorage.getItem('authToken')
   const [likes, setLikes] = useState(0);
+  const [dislikes, setDislikes] = useState(0);
   const [userHasLiked, setUserHasLiked] = useState(false);
   const { postId } = useParams();
   const [isDisliked, setIsDisliked] = useState(false)
@@ -28,105 +29,69 @@ export default function Post() {
     if (postId) {
       getPostById(postId)
         .then((fetchedPost) => {
-          fetchedPost.likes?.map((user) => {
-            if (user?.userId === userData?._id) {
-              setUserHasLiked(true);
-            }
-          })
-          fetchedPost.dislikes?.map((user) => {
-            if (user?.userId === userData?._id) {
-              setIsDisliked(true)
-            }
-          })
           setPost(fetchedPost);
-          if (userData) {
-            checkIsAuthor(fetchedPost);
+          setUserHasLiked(fetchedPost.userHasLiked);
+          setIsDisliked(fetchedPost.userHasDisliked);
+          setLikes(fetchedPost.likes || 0);
+          if(fetchedPost.userId._id === userData._id) {
+            setAuthor(true);
           }
+          setDislikes(fetchedPost.dislikes || 0)
         })
         .catch((error) => {
-          console.log(error)
-          // toast.error("Post not found");
+          console.log(error);
           navigate("/");
         })
         .finally(() => setLoading(false));
     }
   }, [postId, userData]);
 
-  const checkIsAuthor = (fetchedPost) => {
-    if (userData && fetchedPost.userId._id === userData._id) {
-      setAuthor(true);
-    }
-  };
+  const updateReactionState = (value) => {
+    setPost(prev => {
+      let newLikes = prev.likes;
+      let newDislikes = prev.dislikes;
 
-  const saveLikesInDatabase = async (postId, isPostLiked, trial = 0) => {
-    if (trial === 3) {
-      alert('Error occured while updating content');
-      // Revert state that is updated on like operation
-      updateStateOnLike(!isPostLiked);
-    }
-    if (trial < 3) {
-      try {
-        await addLike(postId, token);
-      } catch (err) {
-        saveLikesInDatabase(postId, isPostLiked, ++trial);
+      if (value === 1) {
+        if (prev.dislikes > 0 && isDisliked) newDislikes -= 1;
+        newLikes += 1;
+      } else if (value === -1) {
+        if (prev.likes > 0 && userHasLiked) newLikes -= 1;
+        newDislikes += 1;
       }
-    }
-  };
 
-  const saveDislikesInDatabase = async (postId, isPostDisliked, trial = 0) => {
-    if (trial === 3) {
-      alert('Error occured while updating content');
-      // Revert state that is updated on dislike operation
-      updateStateOnDislike(!isPostDisliked);
-    }
-    if (trial < 3) {
-      try {
-        await addDislike(postId, token);
-      } catch (err) {
-        saveDislikesInDatabase(postId, isPostDisliked, ++trial);
-      }
-    }
-  };
+      return { ...prev, likes: newLikes, dislikes: newDislikes };
+    });
 
-  const updateStateOnLike = (isPostLiked)=> {
-    setPost(post => {
-      if (isPostLiked) {
-        post.likes.push({ userId: userData?._id });
-      } else {
-        post.likes = post.likes.filter(item => item.userId !== userData?._id);
-      }
-      return post;
-    })
-    setUserHasLiked((prev) => !prev);
-  };
-
-  const updateStateOnDislike = (isPostDisliked)=> {
-    setPost(post => {
-      if (isPostDisliked) {
-        post.dislikes.push({ userId: userData?._id });
-      } else {
-        post.dislikes = post.dislikes.filter(item => item.userId !== userData?._id);
-      }
-      return post;
-    })
-    setIsDisliked((prev) => !prev);
+    setUserHasLiked(value === 1);
+    setIsDisliked(value === -1);
   };
 
   const handleLike = async () => {
-    saveLikesInDatabase(post?._id, !userHasLiked);
-    updateStateOnLike(!userHasLiked);
-    if(isDisliked){
-      updateStateOnDislike(false);
+    try {
+      if (!userHasLiked) {
+        setLikes((prevLikes) => prevLikes + 1);
+        setDislikes((prevDislikes) => Math.max(prevDislikes - 1, 0));
+        reactToPost(post._id, userHasLiked ? 0 : 1, token);
+        updateReactionState(userHasLiked ? 0 : 1);
+      }
+    } catch (error) {
+      toast.error("Failed to react to post");
     }
   };
 
   const handleDislike = async () => {
-    saveDislikesInDatabase(post?._id, !isDisliked);
-    updateStateOnDislike(!isDisliked);
-    if(userHasLiked) {
-      updateStateOnLike(false);
+    try {
+      if (!isDisliked) {
+        setLikes((prevLikes) => Math.max(prevLikes - 1, 0));
+        setDislikes((prevDislikes) => prevDislikes + 1);
+        reactToPost(post._id, isDisliked ? 0 : -1, token);
+        updateReactionState(isDisliked ? 0 : -1);
+      }
+    } catch (error) {
+      toast.error("Failed to react to post");
     }
   };
+
 
   const handleShare = async () => {
     try {
@@ -213,11 +178,11 @@ export default function Post() {
               <div className="sm:flex hidden justify-start items-center mt-5 ml-5">
                 <button className={`p-3  ${userHasLiked ? "text-green-500" : "text-gray-400"}`} onClick={handleLike}>
                   <FontAwesomeIcon className="mr-3" icon={faThumbsUp} /> {/* Adjusted margin-right */}
-                  {post?.likes?.length}
+                  {likes || 0}
                 </button>
                 <button className={`p-3  ${isDisliked ? "text-red-500" : "text-gray-400"}`} onClick={handleDislike}>
                   <FontAwesomeIcon className="mr-3" icon={faThumbsDown} /> {/* Adjusted margin-right */}
-                  {post?.dislikes?.length}
+                  {dislikes || 0}
                 </button>
                 <button className="p-3 text-blue-400" onClick={handleShare}>
                   <FontAwesomeIcon className="mr-3" icon={faShare} /> {/* Adjusted margin-right */}
@@ -267,7 +232,7 @@ export default function Post() {
               }}
             >
               <FontAwesomeIcon icon={faThumbsUp} style={{ marginRight: '8px' }} />
-              {post?.likes?.length}
+              {post?.likes}
             </button>
 
             <button
@@ -282,7 +247,7 @@ export default function Post() {
               }}
             >
               <FontAwesomeIcon icon={faThumbsDown} style={{ marginRight: '8px' }} />
-              {post?.dislikes?.length}
+              {post?.dislikes}
             </button>
 
             <button

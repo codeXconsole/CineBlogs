@@ -54,7 +54,7 @@ export default function UserProfile() {
       setBio(data.data?.bio || '');
       setUsername(data.data?.username || '');
       setEmail(data.data?.email || '');
-      setIsFollowing(data.data?.followers?.some((follow) => follow.follower._id === appUser?._id) || false);
+      setIsFollowing(data.data?.is_following || false);
       setIsAuthor(data.data?._id === appUser?._id);
       setLoading(false);
     } catch (error) {
@@ -67,21 +67,25 @@ export default function UserProfile() {
     try {
       setIsFollowing((prev) => !prev);
       setUser((prevUserData) => {
-        const newFollowerCount = prevUserData.followers.length + (isFollowing ? -1 : 1);
-        return { ...prevUserData, followers: Array(newFollowerCount).fill({}) };
+        if(isFollowing) {
+          const newFollowerCount = prevUserData.followers - 1;
+           return { ...prevUserData, followers: newFollowerCount };
+        } else {
+          const newFollowerCount = prevUserData.followers + 1;
+          return { ...prevUserData, followers: newFollowerCount };
+        }
       });
 
       await createFollow(userId, authToken);
     } catch (error) {
       setIsFollowing((prev) => !prev);
       setUser((prevUserData) => {
-        const revertedFollowerCount = prevUserData.followers.length + (isFollowing ? 1 : -1);
-        return { ...prevUserData, followers: Array(revertedFollowerCount).fill({}) };
+        const revertedFollowerCount = prevUserData.followers.length - 1;
+        return { ...prevUserData, followers: revertedFollowerCount };
       });
       toast.error("Error updating follow status.");
     }
   };
-
 
   const handleEdit = useCallback(async () => {
     if (isEdit) {
@@ -116,8 +120,6 @@ export default function UserProfile() {
       setSelectedImage(file);
     }
   }, []);
-
-  const followerCount = useMemo(() => userData?.followers?.length || 0, [userData]);
 
   if (isLoading) {
     return (
@@ -221,8 +223,8 @@ export default function UserProfile() {
 
         <div className="flex justify-around mt-6 text-gray-300">
           <div>
-            <p className="text-xl font-bold">{followerCount}</p>
-            {followerCount > 0 ? (
+            <p className="text-xl font-bold">{userData?.followers}</p>
+            {userData?.followers > 0 ? (
               <Link to={`/followers/${userData?._id}`}>
                 <p className="text-sm hover:scale-[1.05] hover:text-blue-500 duration-[0.3]">Followers</p>
               </Link>

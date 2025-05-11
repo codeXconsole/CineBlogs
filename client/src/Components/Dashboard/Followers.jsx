@@ -5,37 +5,30 @@ import { ScaleLoader } from "react-spinners";
 import AuthorCard from "../../Components/AuthorCard";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { getFollowers } from "../../AppWrite/Apibase";
 
 const Followers = () => {
-  const [user, setUser] = useState(null);
   const [selectedFollower, setSelectedFollower] = useState(null);
+  const [followersData, setFollowersData] = useState(null);
   const userData = useSelector((state) => state.Auth.userData);
   const authToken = localStorage.getItem("authToken");
   const [isLoading, setLoading] = useState(false);
 
-  const getUser = async () => {
+  const getUserFollowers = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_REACT_APP_API_BASE_URL}/api/v1/users/get-user/${userData._id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
-      const user = response.data.data;
-      setUser(user);
-      setSelectedFollower(user?.followers?.[0]?.follower || null);
-      setLoading(false);
+      const response = await getFollowers(userData?._id, authToken);
+      setSelectedFollower(response.data[0]);
+      setFollowersData(response.data);
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching followers:", error);
+    } finally {
       setLoading(false);
     }
-  };
+  }
 
   useEffect(() => {
-    if (userData?._id) getUser();
+    if (userData?._id) getUserFollowers()
   }, [userData?._id]);
 
   if (isLoading) {
@@ -49,11 +42,11 @@ const Followers = () => {
   }
 
   return (
-    <div className="flex flex-row justify-between items-start w-full min-h-screen px-8 md:px-12 gap-6 py-8">
-      
+    <div className="flex flex-row justify-between items-start w-full min-h-screen px-8 md:px-12 gap-6 py-8 bg-black">
+
       {/* Followers Grid */}
       <div className="w-3/4">
-        {user?.followers?.length === 0 ? (
+        {followersData?.length === 0 ? (
           <div className="text-center text-white mt-12">
             <p className="text-2xl font-medium">
               You have no followers yet.
@@ -64,68 +57,67 @@ const Followers = () => {
           </div>
         ) : (
           <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
-            {user?.followers?.map((followerObj, index) => (
+            {followersData?.map((followerObj, index) => (
               <div
                 key={index}
                 className="flex justify-center items-center cursor-pointer"
-                onClick={() => setSelectedFollower(followerObj?.follower)}
+                onClick={() => setSelectedFollower(followerObj)}
               >
-                <AuthorCard userData={followerObj?.follower} index={index} />
+                <AuthorCard userData={followerObj} index={index} />
               </div>
             ))}
           </div>
         )}
       </div>
 
+      {/* Vertical Divider */}
+      <div className="w-px bg-gray-600 mx-6" />
+
       {/* Sidebar */}
-      <div className="w-1/4 p-6 rounded-2xl shadow-lg flex flex-col gap-6 overflow-y-auto max-h-[90vh] bg-[#1c1c24] text-white">
+      <div className="w-1/4 p-6 rounded-xl shadow-lg flex flex-col overflow-y-auto max-h-[90vh] text-white border border-gray-600">
         {selectedFollower ? (
           <>
-            <div className="flex flex-col items-center">
+            {/* Profile Section */}
+            <div className="flex flex-col items-center mb-6 space-y-4">
               <img
                 src={selectedFollower?.profileImage || "/default-avatar.png"}
                 alt={selectedFollower?.fullName}
-                className="w-28 h-28 rounded-full object-cover mb-4 border-4 border-purple-600"
+                className="w-24 h-24 rounded-full object-cover mb-4 border-4 border-blue-500 transform hover:scale-110 transition-transform duration-300"
               />
-              <h2 className="text-2xl font-bold">{selectedFollower?.fullName}</h2>
-              <p className="text-sm text-gray-400 mb-2">@{selectedFollower?.username}</p>
-              <p className="text-center text-gray-300 text-sm">
-                {selectedFollower?.bio || "No bio available yet."}
-              </p>
+              <p className="text-xl font-semibold text-gray-200 mb-1">@{selectedFollower?.username}</p>
+              <p className="text-center text-gray-300 text-sm">{selectedFollower?.bio || "No bio available yet."}</p>
             </div>
 
-            {/* Stats */}
-            <div className="flex justify-around items-center text-center border-y border-gray-700 py-4">
-              <div>
-                <p className="text-lg font-semibold">{selectedFollower?.followers?.length || 0}</p>
+            {/* Stats Section */}
+            <div className="flex justify-around items-center text-center border-t border-gray-700 pt-4 mb-4">
+              <div className="text-sm">
+                <p className="text-lg font-semibold">{selectedFollower?.followers || 0}</p>
                 <p className="text-xs text-gray-400">Followers</p>
               </div>
-              <div>
-                <p className="text-lg font-semibold">{selectedFollower?.followings?.length || 0}</p>
+              <div className="text-sm">
+                <p className="text-lg font-semibold">{selectedFollower?.followings || 0}</p>
                 <p className="text-xs text-gray-400">Following</p>
               </div>
-            </div>
-
-            {/* Extra Info */}
-            <div className="flex flex-col gap-2 text-sm">
-              <div className="flex justify-between">
-                <p className="text-gray-400">Posts:</p>
-                <p>{selectedFollower?.totalPosts || 0}</p>
+              <div className="text-sm">
+                <p className="text-lg font-semibold">{selectedFollower?.posts || 0}</p>
+                <p className="text-xs text-gray-400">Posts</p>
               </div>
             </div>
 
-            {/* Action Button */}
-            <Link to={`/chat/${selectedFollower?._id}`}>
-            <button className="mt-4 py-2 w-full rounded-full bg-purple-600 hover:bg-purple-700 transition text-white font-semibold">
-              Message
-            </button>
-            </Link>
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-4 mt-6">
+              {/* View Profile Button */}
+              <Link to={`/profile/${selectedFollower?._id}`}>
+                <button className="py-2 px-4 w-full rounded-lg border-2 border-gray-600 hover:bg-white transition-all duration-300 text-white hover:text-black font-medium text-sm shadow-lg hover:shadow-xl">
+                  View Profile
+                </button>
+              </Link>
+            </div>
           </>
         ) : (
           <p className="text-center text-gray-400">Select a follower to view profile</p>
         )}
       </div>
-
     </div>
   );
 };

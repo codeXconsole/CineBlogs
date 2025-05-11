@@ -15,45 +15,19 @@ const postschema = new Schema(
     },
     category: {
       type: String,
-      // required: true,
-      // index: true,
     },
     content: {
       type: String,
       required: true,
     },
-    likes: [{
-      userId: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-      },
-      profileImage: {
-        type: String,
-      },
-      email: {
-        type: String
-      },
-      username: {
-        type: String
-      }
-    }],
-    dislikes: [{
-      userId: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-      },
-      profileImage: {
-        type: String,
-      },
-      email: {
-        type: String
-      },
-      username: {
-        type: String
-      }
-    }],
+    likes: {
+      type: Number,
+      default: 0,
+    },
+    dislikes: {
+      type: Number,
+      default: 0,
+    },
     image: {
       type: String,
     },

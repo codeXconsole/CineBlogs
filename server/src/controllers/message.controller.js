@@ -80,12 +80,24 @@ const getAllConversations = async (req, res) => {
         },
       },
       {
-        $unwind: "$userData",
+        $unwind: "$userData", // Unwind before projecting
+      },
+      {
+        $project: {
+          _id: 1,
+          lastMessage: 1,
+          userData: {
+            _id: "$userData._id",
+            username: "$userData.username",
+            profileImage: "$userData.profileImage",
+          },
+        },
       },
       {
         $sort: { "lastMessage.timestamp": -1 },
       },
     ]);
+
     return successResponse({
       res,
       message: "Conversations retrieved successfully",
@@ -95,6 +107,5 @@ const getAllConversations = async (req, res) => {
     return catchResponse(res, "Error retrieving conversations", error);
   }
 };
-
 
 export { sendMessage, getMessages, getAllConversations };

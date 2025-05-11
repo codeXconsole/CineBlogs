@@ -5,6 +5,7 @@ import "./index.css";
 import { Provider } from "react-redux";
 import store from "./Store/Store.js";
 import {
+  Navigate,
   Route,
   RouterProvider,
   createBrowserRouter,
@@ -26,6 +27,11 @@ import Authors from "./Pages/Authors.jsx";
 import DashBoard from "./Pages/DashBoard.jsx";
 import Chat from "./Pages/Chat.jsx";
 import Conversations from "./Pages/Conversations.jsx";
+import Followers from "./Components/Dashboard/Followers.jsx";
+import MyPosts from "./Components/Dashboard/MyPosts.jsx";
+import Profile from "./Components/Dashboard/Profile.jsx";
+import Overview from "./Components/Dashboard/Overview.jsx";
+import Followings from "./Components/Dashboard/Followings.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -33,11 +39,10 @@ const router = createBrowserRouter(
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<SignUpPage />} />
-      <Route element = {<ProtectRoute/>}>
+      <Route element={<ProtectRoute />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/authors" element={<Authors />} />
         <Route path="/add-post" element={<SearchMovie />} />
-        <Route path="/dashboard" element={<DashBoard />} />
         <Route path="/all-posts/:userId" element={<AllPosts />} />
         <Route path="/edit-post/:postId" element={<EditPosts />} />
         <Route path="/post/:postId" element={<Post />} />
@@ -47,7 +52,15 @@ const router = createBrowserRouter(
         <Route path="/followers/:userId" element={<MyFollowers />} />
         <Route path="/followings/:userId" element={<MyFollowings />} />
         <Route path="/chat/:userId" element={<Chat />} />
-        <Route path="/conversations" element={<Conversations />} />
+        <Route path="/conversations/:userId" element={<Conversations />} />
+      </Route>
+      <Route path="/dashboard" element={<DashBoard />}>
+        <Route index element={<Navigate to="overview" />} />
+        <Route path="overview" element={<Overview />} />
+        <Route path="followers/:userId" element={<Followers />} />
+        <Route path="followings/:userId" element={<Followings />} />
+        <Route path="posts/:userId" element={<MyPosts />} />
+        <Route path="settings/:userId" element={<Profile />} />
       </Route>
     </Route>
   )
@@ -56,7 +69,7 @@ const router = createBrowserRouter(
 ReactDOM.createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     {/* <Suspense fallback={<Loading />}> */}
-      <RouterProvider router={router} />
+    <RouterProvider router={router} />
     {/* </Suspense> */}
   </Provider>
 );
