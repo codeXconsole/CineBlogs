@@ -28,6 +28,15 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
+
+  socket.on("typing", ({ senderId, receiverId }) => {
+    io.emit("typing", { senderId, receiverId });
+  });
+
+  socket.on("stopTyping", ({ senderId, receiverId }) => {
+    io.emit("stopTyping", { senderId, receiverId });
+  });
+  
   socket.on("sendMessage", async (data) => {
     const { senderId, receiverId, content } = data;
     const message = new Message({ senderId, receiverId, content });

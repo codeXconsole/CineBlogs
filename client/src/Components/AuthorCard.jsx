@@ -30,7 +30,7 @@ function AuthorCard({ userData, className, viewProfileBtn }) {
         {viewProfileBtn ? (
           <div className="space-y-2">
             <Link to={`/profile/${userId}`}>
-              <button className="w-full py-1.5 text-xs font-medium bg-blue-700 hover:bg-blue-600 text-white rounded-full transition duration-300 mb-2">
+              <button className="w-full py-1.5 text-xs font-medium bg-[#3800ad] hover:bg-blue-600 text-white rounded-full transition duration-300 mb-2">
                 View Profile
               </button>
             </Link>
