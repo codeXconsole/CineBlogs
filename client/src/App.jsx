@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import './App.css'
-import {Login, Logout} from "./Store/AuthSlice"
+import { Login, Logout } from "./Store/AuthSlice"
 import { Header } from './Components'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios'
+import { ScaleLoader } from 'react-spinners'
 
 const apiBaseUrl = import.meta.env.VITE_REACT_APP_API_BASE_URL;
 
@@ -30,7 +31,7 @@ function App() {
         })
         .catch((error) => {
           navigate('/login');
-          console.error('Error fetching user data:', error);  
+          console.error('Error fetching user data:', error);
         })
         .finally(() => setLoading(false));
     } else {
@@ -51,16 +52,16 @@ function App() {
       </div>
     );
   }
-  
+
   return !loading ? (
-    <div className='min-h-screen overflow-hidden overflow-x-hidden flex flex-wrap content-between bg-black text-black w-full'>
+    <div  className='min-h-screen overflow-hidden overflow-x-hidden flex flex-wrap content-between bg-black text-black w-full'>
       <div className='w-full min-h-screen mb-5'>
         <Header />
-        <ToastContainer/>
+        <ToastContainer />
         <main>
-        <Outlet />
+          <Outlet />
         </main>
-        
+
       </div>
     </div>
   ) : null

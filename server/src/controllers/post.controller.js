@@ -11,6 +11,7 @@ const postValidation = Joi.object({
   content: Joi.string().min(5).required(),
   status: Joi.boolean().required(),
   image: Joi.string().required(),
+  rating: Joi.number().required(),
 })
 
 const createPost = async (req, res) => {
@@ -18,14 +19,14 @@ const createPost = async (req, res) => {
     const { error } = postValidation.validate(req.body);
     if (error) return errorResponse(res, error.message);
 
-    const { userId, title, content, status, image } = req.body;
+    const { userId, title, content, status, image, rating } = req.body;
 
     if (userId != req.user._id) return errorResponse(res, "User is not the same");
 
     const user = await User.findOne({ _id: userId });
     if (!user) return errorResponse(res, "User not found");
 
-    const post = await Post.create({ userId, title, content, image, status });
+    const post = await Post.create({ userId, title, content, image, status, rating });
     if (!post) return errorResponse(res, "Error while creating post");
 
     await User.updateOne({ _id: userId }, { $inc: { posts: 1 } });
@@ -82,7 +83,7 @@ const getPostById = async (req, res) => {
     const { postId } = req.params;
     const userId = req.user._id;
 
-    const post = await Post.findById(postId).populate('userId', 'username email');
+    const post = await Post.findById(postId).populate('userId', 'username email profileImage');
     if (!post) {
       return errorResponse(res, "Post not found");
     }
@@ -121,35 +122,71 @@ const getAllPostsById = async (req, res) => {
 const getAllPosts = async (req, res) => {
   try {
     const category = req.query.category;
-    const limit = req.query.limit;
-    const page = req.query.page;
+    const limit = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page) || 1;
     const search = req.query.search;
     const regex = new RegExp(search, "i");
-    const filters = {
-      status: true
-    };
-    if (category) filters.category = category;
+    const minRating = parseFloat(req.query.rating);
 
-    if (search)
-      filters.$or = [
+    const matchStage = { status: true };
+    // if (!isNaN(minRating)) {
+    //   matchStage.rating = { $gte: minRating };
+    // }
+    if (search) {
+      matchStage.$or = [
         { title: { $regex: regex } },
         { category: { $regex: regex } }
       ];
+    }
 
-    const postCount = await Post.countDocuments(filters);
-    const posts = await Post.find(filters)
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .sort({ createdAt: -1 })
-    if (!posts)
-      return res.json({
-        error: `Post Not Found By Filters`,
-      });
+    // Count total matching posts
+    const postCount = await Post.countDocuments(matchStage);
+
+    const posts = await Post.aggregate([
+      { $match: matchStage },
+      { $sort: { createdAt: -1 } },
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'authorData'
+        }
+      },
+      {
+        $unwind: {
+          path: "$authorData",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $project: {
+          title: 1,
+          image: 1,
+          category: 1,
+          createdAt: 1,
+          likes: 1,
+          dislikes: 1,
+          content: 1,
+          rating: 1,
+          author: "$authorData._id",
+          authorName: "$authorData.username",
+          authorProfile: "$authorData.profileImage"
+        }
+      }
+    ]);
+
+    if (!posts || posts.length === 0) {
+      return res.status(404).json({ error: "Post Not Found By Filters" });
+    }
 
     return res.status(200).json({ posts, postCount });
   } catch (error) {
-    return res.json({
-      error: `Error Occured While Fetching Data By Filters`,
+    console.error(error);
+    return res.status(500).json({
+      error: `Error Occurred While Fetching Data By Filters`,
     });
   }
 };

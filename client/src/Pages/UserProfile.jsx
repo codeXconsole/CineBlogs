@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -7,252 +8,335 @@ import { ScaleLoader } from 'react-spinners';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import { IconButton, Stack, Avatar, Typography } from '@mui/material';
-import { Edit as EditIcon, Done as DoneIcon, CameraAlt as CameraAltIcon } from '@mui/icons-material';
-import MuiInput from '../utility/CustomeInput';
-import { createFollow, getUserData, updateUserProfile } from '../AppWrite/Apibase';
+import { Edit as EditIcon, Done as DoneIcon, CameraAlt as CameraAltIcon, Settings as SettingsIcon, MoreHoriz as MoreHorizIcon } from '@mui/icons-material';
+import { createFollow, getAllPostsByUser, getUserData, updateUserProfile } from '../AppWrite/Apibase';
 import { Login } from "../Store/AuthSlice.js";
 import BackButton from '../components/BackButton';
 
 export default function UserProfile() {
-  const [userData, setUser] = useState(null);
-  const { userId } = useParams();
-  const authToken = localStorage.getItem('authToken');
-  const [isLoading, setLoading] = useState(true);
-  const [isAuthor, setIsAuthor] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [isClicked, setIsClicked] = useState(false);
-  const [isEdit, setIsEdit] = useState(false);
-  const [bio, setBio] = useState('');
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [selectedImage, setSelectedImage] = useState(null);
-  const dispatch = useDispatch();
+    const [userData, setUser] = useState(null);
+    const { userId } = useParams();
+    const authToken = localStorage.getItem('authToken');
+    const [isLoading, setLoading] = useState(true);
+    const [isAuthor, setIsAuthor] = useState(false);
+    const [isFollowing, setIsFollowing] = useState(false);
+    const [isClicked, setIsClicked] = useState(false);
+    const [isEdit, setIsEdit] = useState(false);
+    const [bio, setBio] = useState('');
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [posts, setPosts] = useState([]);
+    const [postsLoader, setPostsLoader] = useState(false);
+    const dispatch = useDispatch();
+    const appUser = useSelector((state) => state.Auth.userData);
 
-  const appUser = useSelector((state) => state.Auth.userData);
-
-  const inputFields = [
-    { label: 'Username', name: 'username', type: 'text' },
-    { label: 'Email', name: 'email', type: 'email' },
-    { label: 'Bio', name: 'bio', type: 'text' }
-  ];
-
-  // Debounce user data fetching
-  useEffect(() => {
-    if (appUser) {
-      const timer = setTimeout(() => {
-        getUser();
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [userId, appUser, isFollowing, isClicked]);
-
-  const getUser = async () => {
-    if (!appUser) return;
-    try {
-      const data = await getUserData(userId, authToken);
-      setUser(data.data);
-      setBio(data.data?.bio || '');
-      setUsername(data.data?.username || '');
-      setEmail(data.data?.email || '');
-      setIsFollowing(data.data?.is_following || false);
-      setIsAuthor(data.data?._id === appUser?._id);
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-      setLoading(false);
-    }
-  };
-
-  const handleFollow = async () => {
-    try {
-      setIsFollowing((prev) => !prev);
-      setUser((prevUserData) => {
-        if(isFollowing) {
-          const newFollowerCount = prevUserData.followers - 1;
-           return { ...prevUserData, followers: newFollowerCount };
-        } else {
-          const newFollowerCount = prevUserData.followers + 1;
-          return { ...prevUserData, followers: newFollowerCount };
+    // Debounce user data fetching
+    useEffect(() => {
+        if (appUser) {
+            const timer = setTimeout(() => {
+                getUser();
+            }, 300);
+            return () => clearTimeout(timer);
         }
-      });
+    }, [userId, appUser, isFollowing, isClicked]);
 
-      await createFollow(userId, authToken);
-    } catch (error) {
-      setIsFollowing((prev) => !prev);
-      setUser((prevUserData) => {
-        const revertedFollowerCount = prevUserData.followers.length - 1;
-        return { ...prevUserData, followers: revertedFollowerCount };
-      });
-      toast.error("Error updating follow status.");
-    }
-  };
+    const getUser = async () => {
+        if (!appUser) return;
+        try {
+            const data = await getUserData(userId, authToken);
+            setUser(data.data);
+            setBio(data.data?.bio || '');
+            setUsername(data.data?.username || '');
+            setEmail(data.data?.email || '');
+            setIsFollowing(data.data?.is_following || false);
+            setIsAuthor(data.data?._id === appUser?._id);
+            setLoading(false);
 
-  const handleEdit = useCallback(async () => {
-    if (isEdit) {
-      setLoading(true);
-      const formData = new FormData();
-      formData.append('bio', bio);
-      formData.append('username', username);
-      formData.append('email', email);
-      if (selectedImage) {
-        formData.append('profileImage', selectedImage);
-      }
-
-      try {
-        const response = await updateUserProfile(formData, authToken);
-        setUser(response.data);
-        if (isAuthor) {
-          dispatch(Login({ user: response.data, token: authToken }));
+            // ✅ Now fetch posts after user data is ready
+            const postsResponse = await getAllPostsByUser(authToken, data.data._id);
+            setPosts(postsResponse || []);
+        } catch (error) {
+            console.error(error);
+            setLoading(false);
         }
-        toast.success("Profile updated successfully!");
-      } catch (error) {
-        toast.error("Error updating profile!");
-      } finally {
-        setLoading(false);
-      }
-    }
-    setIsEdit(!isEdit);
-  }, [isEdit, bio, username, email, selectedImage, authToken, dispatch, isAuthor]);
+    };
 
-  const handleFileChange = useCallback((e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedImage(file);
-    }
-  }, []);
 
-  if (isLoading) {
-    return (
-      <div className="w-full flex flex-col justify-center items-center bg-gradient-to-b from-black via-[#1e022c] to-black py-12">
-        <div className="p-4 w-full flex flex-col justify-center items-center">
-          <h1 className="text-4xl font-semibold text-white">
-            "Patience, the Best Stories Are Worth the Wait."
-          </h1>
-          <p className="text-lg mt-2 text-gray-300">
-            We’re brewing something great! Check back soon for fresh content.
-          </p>
-        </div>
-        <div className='mt-[5rem]'>
-          <ScaleLoader color="#ffffff" height={50} />
-        </div>
-      </div>
-    );
-  }
+    const handleFollow = async () => {
+        try {
+            setIsFollowing((prev) => !prev);
+            setUser((prevUserData) => {
+                if (isFollowing) {
+                    const newFollowerCount = prevUserData.followers - 1;
+                    return { ...prevUserData, followers: newFollowerCount };
+                } else {
+                    const newFollowerCount = prevUserData.followers + 1;
+                    return { ...prevUserData, followers: newFollowerCount };
+                }
+            });
 
-  return (
-    <div className="bg-transparent min-h-screen flex flex-col items-center py-12 px-4">
-      <div className="border-white border-[0.1px] shadow-sm shadow-white w-full max-w-[40rem] bg-gradient-to-b from-black via-[#12041c] to-black rounded-xl p-8 text-white text-center">
-        <BackButton />
-        <Stack direction="column" alignItems="center">
-          <div className="relative">
-            <Avatar
-              src={selectedImage ? URL.createObjectURL(selectedImage) : userData?.profileImage}
-              sx={{
-                width: 150,
-                height: 150,
-                objectFit: 'cover',
-                border: '3px solid #fff',
-                boxShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
-              }}
-              loading="lazy"
-            />
-            {isEdit && (
-              <IconButton
-                sx={{
-                  position: 'absolute',
-                  bottom: 0,
-                  right: 0,
-                  color: 'white',
-                  bgcolor: 'rgba(0,0,0,0.5)',
-                  ':hover': {
-                    bgcolor: 'rgba(0,0,0,0.7)',
-                  },
-                }}
-                component="label"
-              >
-                <CameraAltIcon />
-                <input type="file" hidden onChange={handleFileChange} />
-              </IconButton>
-            )}
-          </div>
-          <div className="mt-6 space-y-4">
-            {inputFields.map(({ label, name, type }) => (
-              isEdit ? (
-                <MuiInput
-                  key={name}
-                  label={label}
-                  type={type}
-                  value={name === 'username' ? username : name === 'email' ? email : bio}
-                  onChange={(e) => {
-                    if (name === 'username') setUsername(e.target.value);
-                    if (name === 'email') setEmail(e.target.value);
-                    if (name === 'bio') setBio(e.target.value);
-                  }}
-                  sx={{
-                    mb: 2,
-                    '& .MuiInputBase-input': { color: 'white' },
-                    '& .MuiInputLabel-root': { color: 'white' },
-                    '& .MuiOutlinedInput-root': {
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'white' },
-                      '&.Mui-focused .MuiInputLabel-root': { color: 'white' },
-                    },
-                    '& .MuiOutlinedInput-notchedOutline': { borderColor: 'white' },
-                    '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'white' },
-                  }}
-                />
-              ) : (
-                <Typography key={name} className="text-lg text-gray-300">
-                  {name === 'username' ? username : name === 'email' ? email : bio}
-                </Typography>
-              )
-            ))}
-            <Typography className="text-gray-400">Joined: {new Date(userData?.createdAt).toLocaleDateString()}</Typography>
-            {isEdit ? (
-              <IconButton onClick={handleEdit} sx={{ mt: 2, color: 'white' }}>
-                <DoneIcon />
-              </IconButton>
-            ) : (
-              isAuthor && (
-                <IconButton onClick={() => setIsEdit(true)} sx={{ mt: 2, color: 'white' }}>
-                  <EditIcon />
-                </IconButton>
-              )
-            )}
-          </div>
-        </Stack>
+            await createFollow(userId, authToken);
+        } catch (error) {
+            setIsFollowing((prev) => !prev);
+            setUser((prevUserData) => {
+                const revertedFollowerCount = prevUserData.followers.length - 1;
+                return { ...prevUserData, followers: revertedFollowerCount };
+            });
+            toast.error("Error updating follow status.");
+        }
+    };
 
-        <div className="flex justify-around mt-6 text-gray-300">
-          <div>
-            <p className="text-xl font-bold">{userData?.followers}</p>
-            {userData?.followers > 0 ? (
-              <Link to={`/followers/${userData?._id}`}>
-                <p className="text-sm hover:scale-[1.05] hover:text-blue-500 duration-[0.3]">Followers</p>
-              </Link>
-            ) : (
-              <p className="text-sm">Followers</p>
-            )}
-          </div>
-          <div>
-            <p className="text-xl font-bold">{userData?.posts || 0}</p>
-            {
-              userData?.posts > 0 ? (
-                <Link to={`/posts/${userData?._id}`}>
-                  <p className="text-sm hover:scale-[1.05] hover:text-blue-500 duration-[0.3]">Posts</p>
-                </Link>
-              ) : (<p className="text-sm">Posts</p>)
+    const handleEdit = useCallback(async () => {
+        if (isEdit) {
+            setLoading(true);
+            const formData = new FormData();
+            formData.append('bio', bio);
+            formData.append('username', username);
+            formData.append('email', email);
+            if (selectedImage) {
+                formData.append('profileImage', selectedImage);
             }
-          </div>
-        </div>
 
-        {appUser && userData && !isAuthor && (
-          <button
-            onClick={handleFollow}
-            className="mt-8 px-6 py-2 rounded-full shadow-md transform transition-all duration-300 bg-gradient-to-r from-purple-500 to-indigo-600 hover:bg-indigo-700 hover:scale-105 text-white"
-          >
-            {isFollowing ? 'Unfollow' : 'Follow'}
-          </button>
-        )}
-      </div>
-    </div>
-  );
+            try {
+                const response = await updateUserProfile(formData, authToken);
+                setUser(response.data);
+                if (isAuthor) {
+                    dispatch(Login({ user: response.data, token: authToken }));
+                }
+                toast.success("Profile updated successfully!", {
+                    autoClose: 1000,
+                    style: {
+                        backgroundColor: "#2e1065",
+                        color: "#ffffff",
+                    },
+                    hideProgressBar: true,
+                });
+            } catch (error) {
+                toast.error("Error updating profile!", {
+                    autoClose: 1000,
+                    style: {
+                        backgroundColor: "#2e1065",
+                        color: "#ffffff",
+                    },
+                    hideProgressBar: true,
+                });
+            } finally {
+                setLoading(false);
+            }
+        }
+        setIsEdit(!isEdit);
+    }, [isEdit, bio, username, email, selectedImage, authToken, dispatch, isAuthor]);
+
+    const handleFileChange = useCallback((e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedImage(file);
+        }
+    }, []);
+
+    if (isLoading) {
+        return (
+            <div className="w-full flex flex-col justify-center items-center bg-gradient-to-b from-black via-[#14061F] to-black py-12">
+                <div className='mt-[5rem]'>
+                    <ScaleLoader color="#ffffff" height={50} />
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="bg-black min-h-screen text-white">
+            {/* Mobile Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-800 md:hidden">
+                <BackButton />
+                <h1 className="text-xl font-semibold mr-auto ml-10">{userData?.username}</h1>
+            </div>
+
+            {/* Desktop Header */}
+
+            <div className="max-w-4xl mx-auto px-4 py-6">
+                <div className='hidden md:flex justify-between'>
+                    <BackButton />
+                    <div className="flex items-center gap-4">
+                        {isAuthor && (
+                            <Link to={`/dashboard/settings/${userData?._id}`}>
+                                <IconButton sx={{ color: 'white' }}>
+                                    <SettingsIcon />
+                                </IconButton>
+                            </Link>
+                        )}
+                    </div>
+                </div>
+                {/* Profile Header */}
+                <div className="flex md:flex-row gap-8 mb-8">
+                    {/* Profile Picture */}
+                    <div className="flex justify-center md:justify-start">
+                        <div className="flex pt-3 md:pt-0">
+                            <div className="w-20 h-20 md:w-36 md:h-36 rounded-full overflow-hidden border-2 border-gray-300">
+                                <img
+                                    src={selectedImage ? URL.createObjectURL(selectedImage) : userData?.profileImage || '/default-avatar.png'}
+                                    alt={userData?.username}
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                            {isEdit && (
+                                <IconButton
+                                    sx={{
+                                        position: 'absolute',
+                                        bottom: -8,
+                                        right: -8,
+                                        color: 'white',
+                                        bgcolor: '#262626',
+                                        width: 32,
+                                        height: 32,
+                                        ':hover': { bgcolor: '#363636' },
+                                    }}
+                                    component="label"
+                                >
+                                    <CameraAltIcon fontSize="small" />
+                                    <input type="file" hidden onChange={handleFileChange} />
+                                </IconButton>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Profile Info */}
+                    <div className="flex-1">
+                        {/* Username and Action Buttons */}
+                        <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+                            <div className="flex items-center gap-4">
+                                {isEdit ? (
+                                    <input
+                                        type="text"
+                                        value={username}
+                                        onChange={(e) => setUsername(e.target.value)}
+                                        className="bg-transparent border-b border-gray-600 text-xl font-light focus:outline-none focus:border-white"
+                                    />
+                                ) : (
+                                    <h1 className="text-xl md:text-2xl font-light">{userData?.username}</h1>
+                                )}
+                            </div>
+
+                            <div className="flex gap-2">
+                                {isAuthor ? (
+                                    <>
+                                        {isEdit ? (
+                                            <button
+                                                onClick={handleEdit}
+                                                className="px-4 py-1.5 bg-gradient-to-br from-[#ff4d94] to-[#8f44fd] text-white text-sm font-medium rounded-md hover:bg-blue-600 transition-colors"
+                                            >
+                                                Save
+                                            </button>
+                                        ) : (
+                                            <button
+                                                onClick={() => setIsEdit(true)}
+                                                className="px-4 py-1.5 bg-transparent border border-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
+                                            >
+                                                Edit profile
+                                            </button>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        <button
+                                            onClick={handleFollow}
+                                            className={`px-6 py-1.5 text-sm font-medium rounded-md transition-colors ${isFollowing
+                                                ? 'bg-transparent border border-gray-600 text-white hover:bg-gray-800'
+                                                : 'bg-gradient-to-br from-[#ff4d94] to-[#8f44fd] text-white hover:bg-blue-600'
+                                                }`}
+                                        >
+                                            {isFollowing ? 'Following' : 'Follow'}
+                                        </button>
+                                        <Link to={`/conversations/${userData?._id}`}>
+                                            <button className="px-4 py-1.5 bg-gradient-to-br from-[#ff4d94] to-[#8f44fd] border border-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors">
+                                                Message
+                                            </button>
+                                        </Link>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Stats */}
+                        <div className="flex gap-8 mb-4">
+                            <div className="text-center md:text-left">
+                                <span className="font-semibold">{posts?.length || 0}</span>
+                                <span className="text-gray-400 ml-2">posts</span>
+                            </div>
+                            <Link to={`/followers/${userData?._id}`} className="hover:text-gray-300">
+                                <div className="text-center md:text-left">
+                                    <span className="font-semibold">{userData?.followers || 0}</span>
+                                    <span className="text-gray-400 ml-2">followers</span>
+                                </div>
+                            </Link>
+                            <div className="text-center md:text-left">
+                                {/* <span className="font-semibold">{userData?.following || 0}</span>    */}
+                                {/* <span className="text-gray-400 ml-2">following</span> */}
+                            </div>
+                        </div>
+
+                        {/* Bio */}
+                        <div className="text-sm">
+                            {isEdit ? (
+                                <textarea
+                                    value={bio}
+                                    onChange={(e) => setBio(e.target.value)}
+                                    className="bg-transparent border border-gray-600 rounded p-2 w-full resize-none focus:outline-none focus:border-white"
+                                    rows="3"
+                                    placeholder="Write a bio..."
+                                />
+                            ) : (
+                                <div className="text-gray-300 whitespace-pre-wrap">
+                                    {userData?.bio || 'No bio yet.'}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Posts Grid */}
+                <div className="mt-1">
+                    {!postsLoader ? (
+                        <>
+                            {posts.length > 0 ? (
+                                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-2">
+                                    {posts.map((post) => (
+                                        <Link to={`/post/${post._id}`} key={post._id} className="group relative rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300">
+                                            <div className="h-full bg-neutral-900">
+                                                <img
+                                                    src={post.image}
+                                                    alt="Post"
+                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                />
+                                                {/* Optional overlay like Instagram */}
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white font-medium text-sm">
+                                                    View Post
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            ) : (
+                                !postsLoader ?
+                                    <div className="flex flex-col items-center py-16">
+                                        <div className="w-16 h-16 border-2 border-gray-600 rounded-full flex items-center justify-center mb-6">
+                                            <svg className="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M3 3h7v7H3V3zm0 11h7v7H3v-7zm11-11h7v7h-7V3zm0 11h7v7h-7v-7z" />
+                                            </svg>
+                                        </div>
+                                        <h3 className="text-xl font-light mb-2">No Posts Yet</h3>
+                                        <p className="text-gray-400 text-sm">When you share posts, they will appear on your profile.</p>
+                                    </div> : null
+                            )}
+                        </>
+                    ) : <div className="w-full flex flex-col justify-center items-center py-12">
+                        <div className='mt-[5rem]'>
+                            <ScaleLoader color="#ffffff" height={50} />
+                        </div>
+                    </div>}
+                </div>
+            </div>
+        </div>
+    );
 }

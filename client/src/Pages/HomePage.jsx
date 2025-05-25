@@ -122,7 +122,7 @@ function HomePage() {
 
   return (
     <div className="w-full bg-black py-8">
-      <div className="w-full flex justify-center items-center mb-4">
+      <div className="w-full flex justify-center items-center mb-4 px-4">
         <SearchBar
           searchQuery={searchQuery}
           handleSearchChange={handleSearchChange}

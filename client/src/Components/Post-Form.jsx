@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Select } from "./index";
+import { Star, Sparkles, Edit3, Bot, Send, Eye, Lock } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -18,15 +18,21 @@ export default function PostForm({ post }) {
       slug: post?.slug || "",
       content: post?.content || "",
       status: post?.status || "Public",
+      rating: post?.rating || 7,
     },
   });
+
   const contentValue = watch("content");
+  const userRating = watch("rating");
+  const statusValue = watch("status");
+
   const [isLoading, setLoading] = useState(false);
   const [isAIContent, setAIContent] = useState(false);
   const [isAILoading, setAILoading] = useState(false);
   const [showAIModal, setShowAIModal] = useState(false);
   const [rating, setRating] = useState(3);
   const [sentiment, setSentiment] = useState("positive");
+
   const navigate = useNavigate();
   const movie = useSelector((state) => state.Auth.movie);
   const userData = useSelector((state) => state.Auth.userData);
@@ -49,9 +55,8 @@ export default function PostForm({ post }) {
     try {
       const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_AI_KEY);
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const prompt = `Write a ${sentiment} review for the movie "${
-        movie?.Title || post?.title
-      }", assuming a rating of ${rating} out of 5 stars, without adding stars into content and make content simpler in min 150 words, make content beautiful with little emojis.`;
+      const prompt = `Write a ${sentiment} review for the movie "${movie?.Title || post?.title
+        }", assuming a rating of ${rating} out of 5 stars, without adding stars into content and make content simpler in min 150 words, make content beautiful with little emojis.`;
       const result = await model.generateContent(prompt);
 
       if (result) {
@@ -88,9 +93,8 @@ export default function PostForm({ post }) {
     try {
       const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_AI_KEY);
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const prompt = `${
-        movie?.Title || post?.title
-      }, ${contentValue}, Make this content more read feiendly and social media worthy, without adding stars into content and make content simpler in min 150 words, make content beautiful with little emojis.`;
+      const prompt = `${movie?.Title || post?.title
+        }, ${contentValue}, Make this content more read friendly and social media worthy, without adding stars into content and make content simpler in min 150 words, make content beautiful with little emojis.`;
       const result = await model.generateContent(prompt);
 
       if (result) {
@@ -138,23 +142,24 @@ export default function PostForm({ post }) {
     try {
       const postData = post
         ? {
-            title: data?.title,
-            content: data?.content,
-            status: data?.status === "Public",
-          }
+          title: data?.title,
+          content: data?.content,
+          status: data?.status === "Public",
+          rating: Number(data?.rating),
+        }
         : {
-            userId: userData?._id,
-            title: movie?.Title,
-            content: data?.content,
-            status: data?.status === "Public",
-            image: movie?.Poster,
-          };
+          userId: userData?._id,
+          title: movie?.Title,
+          content: data?.content,
+          status: data?.status === "Public",
+          image: movie?.Poster,
+          rating: Number(data?.rating),
+        };
 
       let response;
       if (post) {
         response = await axios.put(
-          `${
-            import.meta.env.VITE_REACT_APP_API_BASE_URL
+          `${import.meta.env.VITE_REACT_APP_API_BASE_URL
           }/api/v1/posts/update-post/${post._id}`,
           postData,
           {
@@ -216,7 +221,7 @@ export default function PostForm({ post }) {
             &quot;Patience, the Best Stories Are Worth the Wait.&quot;
           </h1>
           <p className="text-lg mt-2 text-gray-300">
-            We’re brewing something great! Check back soon for fresh content.
+            We're brewing something great! Check back soon for fresh content.
           </p>
         </div>
         <div className="mt-[5rem]">
@@ -227,159 +232,261 @@ export default function PostForm({ post }) {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit(submit)}
-      className="w-full flex flex-col items-center bg-gradient-to-b from-black via-[#14061F] to-black text-white py-10 px-6 rounded-2xl shadow-2xl"
-    >
-      {/* AI Modal */}
-      {showAIModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex justify-center items-center z-50">
-          <div className="bg-white text-black rounded-2xl p-8 w-[90%] sm:w-[32rem] shadow-xl">
-            <h2 className="text-2xl font-bold mb-6 text-center">
-              🧠 Customize AI Content
-            </h2>
-
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-2">Select Rating</h3>
-              <Rating
-                name="ai-rating"
-                value={rating}
-                onChange={(event, newValue) => setRating(newValue)}
-                size="large"
-              />
-            </div>
-
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-3">
-                Choose Sentiment
-              </h3>
-              <ToggleButtonGroup
-                value={sentiment}
-                exclusive
-                onChange={(event, newValue) => setSentiment(newValue)}
-                aria-label="Sentiment Selection"
-                className="grid grid-cols-3 gap-4 w-full sm:w-[24rem] mx-auto"
-              >
-                {[
-                  {
-                    val: "positive",
-                    label: "Positive",
-                    bg: "bg-green-100",
-                    active: "bg-green-400 text-white",
-                    icon: "😊",
-                  },
-                  {
-                    val: "neutral",
-                    label: "Neutral",
-                    bg: "bg-gray-100",
-                    active: "bg-gray-400 text-white",
-                    icon: "😐",
-                  },
-                  {
-                    val: "negative",
-                    label: "Negative",
-                    bg: "bg-red-100",
-                    active: "bg-red-500 text-white",
-                    icon: "😞",
-                  },
-                ].map(({ val, label, bg, active, icon }) => (
-                  <ToggleButton
-                    key={val}
-                    value={val}
-                    className={`flex flex-col items-center justify-center gap-1 p-4 rounded-xl font-medium shadow-md transition-all duration-200
-                    ${sentiment === val ? active : `${bg} text-black hover:scale-105`}`}
-                  >
-                    <span className="text-xl">{icon}</span>
-                    {label}
-                  </ToggleButton>
-                ))}
-              </ToggleButtonGroup>
-            </div>
-
-            <div className="flex justify-between mt-6">
-              <Button
-                onClick={() => setShowAIModal(false)}
-                className="px-4 py-2 bg-gray-300 text-black rounded-lg shadow hover:bg-gray-400"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={getAiResponse}
-                className="px-4 py-2 bg-teal-500 text-white rounded-lg shadow-md hover:scale-[1.05] transition"
-              >
-                Generate
-              </Button>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-b from-black via-[#14061F] to-black p-4 flex items-center justify-center">
+      <div className="w-full max-w-4xl relative">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 opacity-20 overflow-hidden rounded-3xl">
+          <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
+          <div className="absolute top-20 right-20 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute -bottom-32 left-1/2 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse" style={{ animationDelay: '2s' }}></div>
         </div>
-      )}
 
-      {/* Header */}
-      <div className="text-center mb-10">
-        <h2 className="text-4xl sm:text-3xl font-bold text-white tracking-tight">
-          Share Your Views on{" "}
-          <span className="text-teal-400">{movie?.Title || post?.title}</span>
-        </h2>
-        <p className="text-lg text-gray-300 mt-4 max-w-2xl mx-auto">
-          ✍️ Write your positive or negative points here — AI will turn them
-          into an awesome review!
-        </p>
-      </div>
-
-      {/* Content Textarea */}
-      <div className="w-full flex flex-col items-center gap-6 mt-2">
-        <textarea
-          className="w-full sm:w-3/4 h-[20rem] p-4 rounded-xl text-gray-800 bg-white placeholder-gray-500 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-transform transform hover:scale-[1.01] resize-none shadow-md"
-          placeholder="Type your thoughts here..."
-          {...register("content")}
-          disabled={isAIContent}
-        />
-
-        {/* Action Buttons */}
-        <div className="flex gap-4 flex-wrap justify-center">
-          {contentValue ? (
-            <Button
-              type="button"
-              onClick={improveContentWithAI}
-              className="px-5 py-2 bg-teal-500 text-white rounded-xl shadow-md hover:bg-teal-600 hover:scale-105 transition"
-            >
-              ✨ Improve with AI
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              onClick={() => setShowAIModal(true)}
-              className="px-5 py-2 bg-teal-500 text-white rounded-xl shadow-md hover:bg-teal-600 hover:scale-105 transition"
-            >
-              🤖 Use AI Content
-            </Button>
-          )}
-
-          <Button
-            type="button"
-            onClick={() => setAIContent(false)}
-            className="px-5 py-2 bg-white text-black rounded-xl shadow-md hover:bg-gray-200 hover:scale-105 transition"
-          >
-            📝 Edit Manually
-          </Button>
-        </div>
-      </div>
-
-      {/* Status + Submit */}
-      <div className="w-full sm:w-[45rem] flex flex-col sm:flex-row justify-center items-center mt-10 gap-6">
-        <Select
-          options={["Public", "Private"]}
-          label="Status"
-          className="w-[15rem] sm:w-[20rem] bg-white text-black border border-gray-300 rounded-xl shadow-md py-3 px-4 hover:scale-105 transition"
-          {...register("status", { required: true })}
-        />
-        <Button
-          type="submit"
-          className="w-full sm:w-[20rem] mt-5 py-4 bg-teal-600 text-white rounded-xl font-semibold shadow-xl hover:bg-teal-700 hover:scale-105 transition"
+        <form
+          onSubmit={handleSubmit(submit)}
+          className="relative z-10 bg-gradient-to-br from-slate-900/80 via-purple-900/20 to-slate-900/80 backdrop-blur-xl border border-purple-500/20 rounded-3xl shadow-2xl overflow-hidden"
         >
-          {post ? "Update" : "Publish"}
-        </Button>
+          <div className="p-8 md:p-12">
+            {/* AI Modal */}
+            {showAIModal && (
+              <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex justify-center items-center z-50 animate-fadeIn">
+                <div className="bg-gradient-to-br from-white to-gray-50 text-gray-900 rounded-3xl p-8 w-[90%] max-w-md shadow-2xl animate-scaleIn border border-gray-200">
+                  <div className="text-center mb-8">
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Bot className="w-8 h-8 text-white" />
+                    </div>
+                    <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-cyan-600 bg-clip-text text-transparent">
+                      AI Content Generator
+                    </h2>
+                    <p className="text-gray-600 mt-2">Customize your AI-generated review</p>
+                  </div>
+
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                      <Star className="w-5 h-5 text-yellow-500" />
+                      Rating Preference
+                    </h3>
+                    <div className="flex justify-center gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`w-8 h-8 cursor-pointer transition-all duration-200 hover:scale-110 ${star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
+                            }`}
+                          onClick={() => setRating(star)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold mb-4">Sentiment Tone</h3>
+                    <div className="grid grid-cols-3 gap-3">
+                      {[
+                        { val: 'positive', label: 'Positive', icon: '😊', color: 'from-green-400 to-emerald-500' },
+                        { val: 'neutral', label: 'Neutral', icon: '😐', color: 'from-gray-400 to-slate-500' },
+                        { val: 'negative', label: 'Negative', icon: '😞', color: 'from-red-400 to-rose-500' }
+                      ].map(({ val, label, icon, color }) => (
+                        <button
+                          key={val}
+                          type="button"
+                          onClick={() => setSentiment(val)}
+                          className={`flex flex-col items-center gap-2 p-4 rounded-2xl font-medium transition-all duration-300 hover:scale-105 ${sentiment === val
+                            ? `bg-gradient-to-br ${color} text-white shadow-lg transform scale-105`
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                        >
+                          <span className="text-2xl">{icon}</span>
+                          <span className="text-sm">{label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowAIModal(false)}
+                      className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-all duration-200"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={getAiResponse}
+                      className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-xl font-medium hover:from-purple-600 hover:to-cyan-600 transition-all duration-200 shadow-lg hover:shadow-xl"
+                    >
+                      Generate
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Header */}
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-3 bg-gradient-to-r from-purple-500/20 to-cyan-500/20 border border-purple-500/30 rounded-full px-6 py-2 mb-6">
+                <Sparkles className="w-5 h-5 text-cyan-400" />
+                <span className="text-cyan-400 font-medium">Review Creator</span>
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
+                Share Your Views on{" "}
+                <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                  {movie?.Title || post?.title}
+                </span>
+              </h1>
+              <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+                Create engaging reviews with AI assistance or write your own thoughts
+              </p>
+            </div>
+
+            {/* Content Section */}
+            <div className="mb-12">
+              <div className="relative">
+                <textarea
+                  className="w-full h-64 p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all duration-300 resize-none text-lg"
+                  placeholder="Share your thoughts about this movie... What did you love or hate about it?"
+                  {...register("content")}
+                  disabled={isAIContent}
+                />
+                {isAIContent && (
+                  <div className="absolute top-4 right-4 bg-gradient-to-r from-purple-500 to-cyan-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+                    <Bot className="w-4 h-4" />
+                    AI Generated
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-4 justify-center mt-6">
+                {contentValue ? (
+                  <button
+                    type="button"
+                    onClick={improveContentWithAI}
+                    className="group px-6 py-3 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-2"
+                  >
+                    <Sparkles className="w-5 h-5 group-hover:animate-spin" />
+                    Enhance with AI
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setShowAIModal(true)}
+                    className="group px-6 py-3 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-2"
+                  >
+                    <Bot className="w-5 h-5 group-hover:animate-bounce" />
+                    Generate AI Content
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setAIContent(false)}
+                  className="px-6 py-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-xl font-medium hover:bg-white/20 transition-all duration-300 hover:scale-105 flex items-center gap-2"
+                >
+                  <Edit3 className="w-5 h-5" />
+                  Edit Manually
+                </button>
+              </div>
+            </div>
+
+            {/* Rating and Status Section */}
+            <div className="grid md:grid-cols-2 gap-8 mb-8">
+              {/* Rating Slider */}
+              <div className="space-y-4">
+                <label className="block text-xl font-semibold text-white flex items-center gap-2">
+                  <Star className="w-6 h-6 text-yellow-400 fill-yellow-400" />
+                  Your Rating
+                </label>
+                <div className="relative">
+                  <input
+                    type="range"
+                    min={1}
+                    max={10}
+                    step={1}
+                    {...register("rating", { required: true })}
+                    className="w-full h-3 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
+                  />
+                  <div className="flex justify-between text-sm text-gray-400 mt-2">
+                    <span>1</span>
+                    <span className="text-cyan-400 font-bold text-lg">{userRating}/10</span>
+                    <span>10</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status Selector */}
+              <div className="space-y-4">
+                <label className="block text-xl font-semibold text-white">Privacy Setting</label>
+                <div className="flex gap-3">
+                  {[
+                    { value: 'Public', icon: Eye, label: 'Public', desc: 'Everyone can see' },
+                    { value: 'Private', icon: Lock, label: 'Private', desc: 'Only you can see' }
+                  ].map(({ value, icon: Icon, label, desc }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setValue("status", value)}
+                      className={`flex-1 p-4 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${statusValue === value
+                        ? 'border-cyan-500 bg-cyan-500/20 text-cyan-400'
+                        : 'border-white/20 bg-white/10 text-gray-300 hover:border-white/40'
+                        }`}
+                    >
+                      <Icon className="w-6 h-6 mx-auto mb-2" />
+                      <div className="text-center">
+                        <div className="font-medium">{label}</div>
+                        <div className="text-sm opacity-70">{desc}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="w-full py-4 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-2xl font-bold text-lg shadow-2xl hover:shadow-cyan-500/25 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-3 group"
+            >
+              <Send className="w-6 h-6 group-hover:translate-x-1 transition-transform duration-300" />
+              {post ? "Update Review" : "Publish Review"}
+            </button>
+          </div>
+        </form>
       </div>
-    </form>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes scaleIn {
+          from { transform: scale(0.9); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+        .animate-scaleIn {
+          animation: scaleIn 0.3s ease-out;
+        }
+        .slider::-webkit-slider-thumb {
+          appearance: none;
+          height: 24px;
+          width: 24px;
+          border-radius: 50%;
+          background: linear-gradient(45deg, #06b6d4, #8b5cf6);
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+        }
+        .slider::-moz-range-thumb {
+          height: 24px;
+          width: 24px;
+          border-radius: 50%;
+          background: linear-gradient(45deg, #06b6d4, #8b5cf6);
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+        }
+      `}</style>
+    </div>
   );
-}
+};

@@ -108,7 +108,7 @@ function Authors() {
 
   return (
     <div className="w-full bg-gradient-to-b from-black via-[#14061F] to-black py-12">
-      <div className="w-full flex justify-center items-center mb-8">
+      <div className="w-full flex justify-center items-center mb-8 px-4">
         <SearchBar
           label="Search Artists"
           searchQuery={searchQuery}
@@ -130,7 +130,7 @@ function Authors() {
           <p className="text-xl text-gray-400">No artists found for the search query. Please try another one!</p>
         </div>
       ) : (
-        <div className="sm:ml-5 w-full h-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 transition-all duration-500">
+        <div className="sm:ml-5 w-full h-full grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 transition-all duration-500">
           {artists?.map((artist) => (
             <div
               key={artist._id}
