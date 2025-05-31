@@ -1,14 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
-import { IconButton, Stack, Avatar, Typography } from '@mui/material';
-import { Edit as EditIcon, Done as DoneIcon, CameraAlt as CameraAltIcon, Settings as SettingsIcon, MoreHoriz as MoreHorizIcon } from '@mui/icons-material';
+import { IconButton } from "@mui/material";
+import { CameraAlt as CameraAltIcon, Settings as SettingsIcon } from '@mui/icons-material';
 import { createFollow, getAllPostsByUser, getUserData, updateUserProfile } from '../AppWrite/Apibase';
 import { Login } from "../Store/AuthSlice.js";
 import BackButton from '../components/BackButton';
