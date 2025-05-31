@@ -47,13 +47,13 @@ const Followings = () => {
            <div className={`${followings?.length === 0 ? 'w-full' : 'w-3/4'}`}>
           {followings?.length === 0 ? (
             <div className="text-center text-white mt-12">
-              <p className="text-2xl font-medium">You don't have any followings yet.</p>
+              <p className="text-2xl font-medium">You don&apos;t have any followings yet.</p>
               <p className="text-lg text-gray-400 mt-2 max-w-md mx-auto">
                 Start following other authors to build your network and discover new content!
               </p>
             </div>
           ) : (
-            <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
+            <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-[7rem] gap-y-[1rem]">
               {followings?.map((follower, index) => (
                 <div
                   key={index}

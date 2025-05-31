@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { ScaleLoader } from "react-spinners";
 import AuthorCard from "../../Components/AuthorCard";
 import { useSelector } from "react-redux";
@@ -55,7 +54,7 @@ const Followers = () => {
               </p>
             </div>
           ) : (
-            <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
+            <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-[7rem] gap-y-[1rem]">
               {followersData?.map((followerObj, index) => (
                 <div
                   key={index}

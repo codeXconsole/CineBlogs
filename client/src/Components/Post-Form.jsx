@@ -8,7 +8,6 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { ScaleLoader } from "react-spinners";
 import AILoader from "../Components/AILoader.jsx";
-import { Rating, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default function PostForm({ post }) {
@@ -327,7 +326,7 @@ export default function PostForm({ post }) {
                                 <Sparkles className="w-5 h-5 text-cyan-400" />
                                 <span className="text-cyan-400 font-medium">Review Creator</span>
                             </div>
-                            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
+                            <h1 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
                                 Share Your Views on{" "}
                                 <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
                                     {movie?.Title || post?.title}
@@ -342,7 +341,7 @@ export default function PostForm({ post }) {
                         <div className="mb-12">
                             <div className="relative">
                                 <textarea
-                                    className="w-full h-64 p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all duration-300 resize-none text-lg"
+                                    className="w-full h-60 text-[14px] p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all duration-300 resize-none text-lg"
                                     placeholder="Share your thoughts about this movie... What did you love or hate about it?"
                                     {...register("content")}
                                     disabled={isAIContent}
@@ -361,7 +360,7 @@ export default function PostForm({ post }) {
                                     <button
                                         type="button"
                                         onClick={improveContentWithAI}
-                                        className="group px-6 py-3 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-2"
+                                        className="group px-6 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-2"
                                     >
                                         <Sparkles className="w-5 h-5 group-hover:animate-spin" />
                                         Enhance with AI
@@ -370,7 +369,7 @@ export default function PostForm({ post }) {
                                     <button
                                         type="button"
                                         onClick={() => setShowAIModal(true)}
-                                        className="group px-6 py-3 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-2"
+                                        className="group px-6 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-2"
                                     >
                                         <Bot className="w-5 h-5 group-hover:animate-bounce" />
                                         Generate AI Content
@@ -380,7 +379,7 @@ export default function PostForm({ post }) {
                                 <button
                                     type="button"
                                     onClick={() => setAIContent(false)}
-                                    className="px-6 py-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-xl font-medium hover:bg-white/20 transition-all duration-300 hover:scale-105 flex items-center gap-2"
+                                    className="px-6 py-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-xl font-medium hover:bg-white/20 transition-all duration-300 hover:scale-105 flex items-center gap-2"
                                 >
                                     <Edit3 className="w-5 h-5" />
                                     Edit Manually
@@ -425,15 +424,15 @@ export default function PostForm({ post }) {
                                             key={value}
                                             type="button"
                                             onClick={() => setValue("status", value)}
-                                            className={`flex-1 p-4 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${statusValue === value
+                                            className={`flex-1 p-2 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${statusValue === value
                                                 ? 'border-cyan-500 bg-cyan-500/20 text-cyan-400'
                                                 : 'border-white/20 bg-white/10 text-gray-300 hover:border-white/40'
                                                 }`}
                                         >
-                                            <Icon className="w-6 h-6 mx-auto mb-2" />
+                                            <Icon className="w-4 h-4 mx-auto mb-2" />
                                             <div className="text-center">
-                                                <div className="font-medium">{label}</div>
-                                                <div className="text-sm opacity-70">{desc}</div>
+                                                <div className="font-medium text-[13px]">{label}</div>
+                                                <div className="text-[12px] opacity-70">{desc}</div>
                                             </div>
                                         </button>
                                     ))}
@@ -444,7 +443,7 @@ export default function PostForm({ post }) {
                         {/* Submit Button */}
                         <button
                             type="submit"
-                            className="w-full py-4 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-2xl font-bold text-lg shadow-2xl hover:shadow-cyan-500/25 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-3 group"
+                            className="w-full py-3 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-2xl font-bold text-lg shadow-2xl hover:shadow-cyan-500/25 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-3 group"
                         >
                             <Send className="w-6 h-6 group-hover:translate-x-1 transition-transform duration-300" />
                             {post ? "Update Review" : "Publish Review"}

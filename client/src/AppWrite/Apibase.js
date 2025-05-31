@@ -87,13 +87,14 @@ export const getUserData = async (userId, authToken) => {
   }
 };
 
-export const getAllPostsInHomePage = async (authToken, search, page, rating) => {
+export const getAllPostsInHomePage = async (authToken, search, page, minRating, maxRating) => {
   try {
     const params = {
       search: search || "",
       page: page || 1,
       limit: 8,
-      rating: rating || 0,
+      minRating: minRating || 0,
+      maxRating: maxRating || 10,
     };
     
 

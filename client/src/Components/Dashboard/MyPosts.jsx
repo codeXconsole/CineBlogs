@@ -7,12 +7,13 @@ import { getAllPostsByUser } from "../../AppWrite/Apibase";
 import { useNavigate } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
 import DeletePost from "../DeletePost";
+import { X } from 'lucide-react';
 
 function MyPosts() {
   const userData = useSelector((state) => state.Auth.userData);
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedPost, setSelectedPost] = useState(null);  // State to hold selected post
+  const [selectedPost, setSelectedPost] = useState(null);
   const navigate = useNavigate();
   const userStatus = useSelector((state) => state.Auth.status);
   const authToken = localStorage.getItem("authToken");
@@ -83,7 +84,7 @@ function MyPosts() {
             className="transition-transform transform hover:scale-105 hover:shadow-xl animate__animated animate__fadeIn"
             onClick={() => handlePostClick(post)}
           >
-            <PostCard {...post} isLink={false} />
+            <PostCard {...post} isLink={false} showUser={false} />
           </div>
         ))}
       </div>
@@ -121,23 +122,28 @@ function MyPosts() {
 
             {/* Modal */}
             {showModal && (
-              <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm">
-                <div className="bg-white text-black w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden relative animate__animated animate__fadeIn">
-                  {/* Close Button */}
-                  <button
-                    onClick={() => setShowModal(false)}
-                    className="absolute top-4 right-5 text-gray-500 hover:text-black text-2xl font-bold transition"
-                    aria-label="Close"
-                  >
-                    ×
-                  </button>
+              <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+                <div className="bg-white text-black w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden relative">
+
+                  {/* Header with Close Button */}
+                  <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
+                    <h2 className="text-2xl font-bold text-gray-900 pr-8">{selectedPost.title}</h2>
+                    <button
+                      onClick={() => setShowModal(false)}
+                      className="flex-shrink-0 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
+                      aria-label="Close modal"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
 
                   {/* Modal Content */}
-                  <div className="p-6 max-h-[80vh] overflow-y-auto custom-scrollbar">
-                    <h2 className="text-2xl font-bold mb-4">{selectedPost.title}</h2>
-                    <p className="text-gray-800 leading-relaxed whitespace-pre-line">
-                      {selectedPost.content}
-                    </p>
+                  <div className="px-6 py-6 max-h-[70vh] overflow-y-auto no-scrollbar">
+                    <div className="prose prose-gray max-w-none">
+                      <p className="text-gray-700 leading-relaxed whitespace-pre-line text-base">
+                        {selectedPost.content}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>

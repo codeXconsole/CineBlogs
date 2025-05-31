@@ -121,17 +121,26 @@ const getAllPostsById = async (req, res) => {
 
 const getAllPosts = async (req, res) => {
   try {
-    const category = req.query.category;
     const limit = parseInt(req.query.limit) || 10;
     const page = parseInt(req.query.page) || 1;
     const search = req.query.search;
     const regex = new RegExp(search, "i");
-    const minRating = parseFloat(req.query.rating);
+
+    const minRating = parseFloat(req.query.minRating);
+    const maxRating = parseFloat(req.query.maxRating);
 
     const matchStage = { status: true };
-    // if (!isNaN(minRating)) {
-    //   matchStage.rating = { $gte: minRating };
-    // }
+
+    if (!isNaN(minRating) || !isNaN(maxRating)) {
+      matchStage.rating = {};
+      if (!isNaN(minRating)) {
+        matchStage.rating.$gte = minRating;
+      }
+      if (!isNaN(maxRating)) {
+        matchStage.rating.$lte = maxRating;
+      }
+    }
+
     if (search) {
       matchStage.$or = [
         { title: { $regex: regex } },
@@ -139,7 +148,6 @@ const getAllPosts = async (req, res) => {
       ];
     }
 
-    // Count total matching posts
     const postCount = await Post.countDocuments(matchStage);
 
     const posts = await Post.aggregate([
@@ -190,6 +198,7 @@ const getAllPosts = async (req, res) => {
     });
   }
 };
+
 
 const deletePost = async (req, res) => {
   try {

@@ -4,7 +4,6 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import SearchBar from "../utility/SearchBar";
 import { ScaleLoader } from "react-spinners";
 import { getAllArtists } from "../AppWrite/Apibase";
-import UserCard from "../Components/UserCard";
 import AuthorCard from "../Components/AuthorCard";
 
 function Authors() {

@@ -6,7 +6,7 @@ import { ScaleLoader } from "react-spinners";
 import { getPostById, reactToPost } from "../AppWrite/Apibase.js";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faThumbsDown, faThumbsUp, faShare, faCalendarAlt, faClock, faBookmark, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faThumbsDown, faThumbsUp, faShare, faCalendarAlt, faClock, faUser, faStar } from '@fortawesome/free-solid-svg-icons';
 import DeletePost from "../Components/DeletePost.jsx";
 
 export default function Post() {
@@ -17,14 +17,12 @@ export default function Post() {
   const [dislikes, setDislikes] = useState(0);
   const [userHasLiked, setUserHasLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
   const { postId } = useParams();
   const userStatus = useSelector((state) => state.Auth.status);
   const navigate = useNavigate();
   const userData = useSelector((state) => state.Auth.userData);
   const [isLoading, setLoading] = useState(false);
 
-  // Calculate reading time
   const calculateReadingTime = (text) => {
     if (!text || typeof text !== 'string') return 1;
     const cleanText = text.replace(/<[^>]*>/g, '');
@@ -34,6 +32,18 @@ export default function Post() {
     const readingTimeMinutes = Math.ceil(wordCount / wordsPerMinute);
     return Math.max(1, readingTimeMinutes);
   };
+
+  const getAuthorRating = () => {
+    if (!post || !post.rating) return { score: 0, hasRating: false };
+
+    const score = Math.max(0, Math.min(10, parseFloat(post.rating)));
+    return { 
+      score: Math.round(score * 10) / 10,
+      hasRating: true 
+    };
+  };
+
+  const authorRating = getAuthorRating();
 
   useEffect(() => {
     setLoading(true);
@@ -118,11 +128,11 @@ export default function Post() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black via-[#14061F] to-black flex items-center justify-center relative overflow-hidden">
+      <div className="h-full mt-20 bg-gradient-to-b from-black via-[#14061F] to-black flex items-center justify-center relative overflow-hidden">
         {/* Subtle background elements */}
         <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-48 h-48 bg-purple-500/5 rounded-full blur-2xl"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-56 h-56 bg-blue-500/5 rounded-full blur-2xl"></div>
+          <div className="absolute top-1/4 left-1/4 w-48 h-48 rounded-full blur-2xl"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-56 h-56 rounded-full blur-2xl"></div>
         </div>
 
         <div className="text-center z-10">
@@ -180,9 +190,9 @@ export default function Post() {
 
       {/* Header with author controls */}
       {isAuthor && (
-        <div className="absolute top-4 right-4 z-20 flex gap-2">
+        <div className="absolute top-[-1rem] right-4 z-20 flex gap-2">
           <Link to={`/edit-post/${post._id}`}>
-            <button className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-md border border-white/10">
+            <button className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-md border border-white/10">
               Edit Post
             </button>
           </Link>
@@ -213,11 +223,18 @@ export default function Post() {
                 <FontAwesomeIcon icon={faClock} className="text-xs" />
                 <span>{calculateReadingTime(post.content)} min read</span>
               </div>
+              {/* Author's Rating in header */}
+              {authorRating.hasRating && (
+                <div className="flex items-center gap-1">
+                  <FontAwesomeIcon icon={faStar} className="text-yellow-400 text-xs" />
+                  <span>{authorRating.score}/10</span>
+                </div>
+              )}
             </div>
 
             {/* Author section */}
             {!isAuthor && (
-              <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="flex items-center justify-center gap-3">
                 <img
                   src={post?.userId?.profileImage || "https://via.placeholder.com/40"}
                   alt={post?.userId?.username}
@@ -244,22 +261,48 @@ export default function Post() {
                   <img
                     src={post?.image}
                     alt={post?.title}
-                    className="w-[13rem] mx-auto sm:w-full h-auto rounded-xl shadow-lg border border-white/10 transition-transform duration-300 group-hover:scale-[1.02]"
+                    className="w-[13rem] mx-auto rounded-xl shadow-lg border border-white/10 transition-transform duration-300 group-hover:scale-[1.02]"
                   />
                 </div>
 
-                {/* Engagement buttons - Desktop */}
+                {/* Compact rating sidebar - Desktop only */}
                 {!isAuthor && (
                   <div className="hidden lg:block">
                     <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10">
+                      {/* Author's rating in sidebar */}
+                      {authorRating.hasRating && (
+                        <div className="text-center mb-4 pb-4 border-b border-white/10">
+                          <p className="text-xs text-gray-400 mb-2">Author Rating</p>
+                          <div className="flex items-center justify-center gap-1 mb-1">
+                            <FontAwesomeIcon icon={faStar} className="text-yellow-400 text-sm" />
+                            <span className="text-lg font-semibold text-white">{authorRating.score}</span>
+                            <span className="text-gray-400 text-sm">/5</span>
+                          </div>
+                          <div className="flex items-center justify-center gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <FontAwesomeIcon
+                                key={star}
+                                icon={faStar}
+                                className={`text-xs ${
+                                  star <= authorRating.score
+                                    ? 'text-yellow-400'
+                                    : 'text-gray-600'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       <div className="flex flex-col gap-2">
                         <div className="flex gap-2">
                           <button
                             onClick={handleLike}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-300 ${userHasLiked
-                              ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                              : 'bg-white/5 text-gray-400 hover:bg-green-500/10 hover:text-green-400 border border-white/10'
-                              }`}
+                            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-300 ${
+                              userHasLiked
+                                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                                : 'bg-white/5 text-gray-400 hover:bg-green-500/10 hover:text-green-400 border border-white/10'
+                            }`}
                           >
                             <FontAwesomeIcon icon={faThumbsUp} className="text-xs" />
                             <span className="font-medium">{likes}</span>
@@ -267,10 +310,11 @@ export default function Post() {
 
                           <button
                             onClick={handleDislike}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-300 ${isDisliked
-                              ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                              : 'bg-white/5 text-gray-400 hover:bg-red-500/10 hover:text-red-400 border border-white/10'
-                              }`}
+                            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-300 ${
+                              isDisliked
+                                ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                                : 'bg-white/5 text-gray-400 hover:bg-red-500/10 hover:text-red-400 border border-white/10'
+                            }`}
                           >
                             <FontAwesomeIcon icon={faThumbsDown} className="text-xs" />
                             <span className="font-medium">{dislikes}</span>
@@ -309,10 +353,11 @@ export default function Post() {
               <div className="flex gap-2 max-w-sm mx-auto">
                 <button
                   onClick={handleLike}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-300 ${userHasLiked
-                    ? 'bg-green-500/30 text-green-400 border border-green-500/50'
-                    : 'bg-white/10 text-gray-300 border border-white/20'
-                    }`}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-300 ${
+                    userHasLiked
+                      ? 'bg-green-500/30 text-green-400 border border-green-500/50'
+                      : 'bg-white/10 text-gray-300 border border-white/20'
+                  }`}
                 >
                   <FontAwesomeIcon icon={faThumbsUp} className="text-xs" />
                   <span className="font-medium">{likes}</span>
@@ -320,10 +365,11 @@ export default function Post() {
 
                 <button
                   onClick={handleDislike}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-300 ${isDisliked
-                    ? 'bg-red-500/30 text-red-400 border border-red-500/50'
-                    : 'bg-white/10 text-gray-300 border border-white/20'
-                    }`}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-300 ${
+                    isDisliked
+                      ? 'bg-red-500/30 text-red-400 border border-red-500/50'
+                      : 'bg-white/10 text-gray-300 border border-white/20'
+                  }`}
                 >
                   <FontAwesomeIcon icon={faThumbsDown} className="text-xs" />
                   <span className="font-medium">{dislikes}</span>
