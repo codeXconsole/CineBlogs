@@ -357,7 +357,7 @@ const Conversations = () => {
 
   const handleContextMenu = (e, messageId, messageContent, isOwn) => {
     e.preventDefault();
-    if (!isOwn || editingMessageId) return; // Only allow editing own messages and not while already editing
+    if (!isOwn || editingMessageId) return;
     
     setContextMenu({
       show: true,
