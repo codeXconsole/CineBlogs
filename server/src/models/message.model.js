@@ -4,6 +4,13 @@ const messageSchema = new mongoose.Schema({
   senderId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   receiverId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   content: { type: String, required: true },
+  type: { 
+    type: String, 
+    enum: ['text', 'image', 'video', 'audio', 'file'],
+    default: 'text'
+  },
+  fileUrl: { type: String },
+  fileSize: { type: Number }, // Size in bytes
   timestamp: { type: Date, default: Date.now },
 });
 

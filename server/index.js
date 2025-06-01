@@ -9,8 +9,16 @@ import bodyParser from "body-parser"
 import http from "http";
 import { Server } from "socket.io";
 import { Message } from "./src/models/message.model.js"
+import path from "path";
+import { fileURLToPath } from "url";
+import fs from 'fs';
+
 configDotenv()
 export const app = express()
+
+// Get the directory name
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }))
 app.use(express.json({ limit: "16kb" }))
@@ -18,6 +26,17 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }))
 app.use(express.static("public"))
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)){
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Register routes
+app.use("/api/v1/users", userRouter)
+app.use("/api/v1/posts", postRouter)
+app.use("/api/v1/message", messageRouter)
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -27,27 +46,66 @@ const io = new Server(server, {
   },
 });
 
-io.on("connection", (socket) => {
+// Store online users
+const onlineUsers = new Map();
 
-  socket.on("typing", ({ senderId, receiverId }) => {
-    io.emit("typing", { senderId, receiverId });
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+
+  // Handle user connection
+  socket.on("user_connected", (userId) => {
+    onlineUsers.set(userId, socket.id);
+    console.log("User connected:", userId, "Socket ID:", socket.id);
   });
 
+  // Handle typing events
+  socket.on("typing", ({ senderId, receiverId }) => {
+    const receiverSocketId = onlineUsers.get(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("typing", { senderId, receiverId });
+    }
+  });
+
+  // Handle stop typing events
   socket.on("stopTyping", ({ senderId, receiverId }) => {
-    io.emit("stopTyping", { senderId, receiverId });
+    const receiverSocketId = onlineUsers.get(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("stopTyping", { senderId, receiverId });
+    }
   });
   
   socket.on("sendMessage", async (data) => {
-    const { senderId, receiverId, content } = data;
-    const message = new Message({ senderId, receiverId, content });
-    await message.save();
-    io.emit("receiveMessage", message);
+    const { senderId, receiverId, content, type, fileUrl } = data;
+    
+    // Send message to receiver
+    const receiverSocketId = onlineUsers.get(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("receiveMessage", data);
+    }
+    
+    // Send back to sender to confirm
+    const senderSocketId = onlineUsers.get(senderId);
+    if (senderSocketId) {
+      io.to(senderSocketId).emit("receiveMessage", data);
+    }
+  });
+
+  // Handle disconnection
+  socket.on("disconnect", () => {
+    let disconnectedUserId;
+    for (const [userId, socketId] of onlineUsers.entries()) {
+      if (socketId === socket.id) {
+        disconnectedUserId = userId;
+        break;
+      }
+    }
+    if (disconnectedUserId) {
+      onlineUsers.delete(disconnectedUserId);
+      console.log("User disconnected:", disconnectedUserId);
+    }
   });
 });
 
+// Start server
 server.listen(process.env.PORT, () => console.log(`App is running on ${process.env.PORT}`))
 connect()
-
-app.use("/api/v1/users", userRouter)
-app.use("/api/v1/posts", postRouter)
-app.use("/api/v1/message", messageRouter)

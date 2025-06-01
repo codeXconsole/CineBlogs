@@ -1,19 +1,38 @@
 import { Message } from "../models/message.model.js";
-import { catchResponse, successResponse } from "../utils/functions.js";
+import { catchResponse, successResponse, errorResponse, uploadOnCloudinry, deleteImage } from "../utils/functions.js";
 
 const sendMessage = async (req, res) => {
   try {
-    const { receiverId, content } = req.body;
+    const { receiverId, content, type = 'text' } = req.body;
     const senderId = req.user._id;
+    let fileUrl = null;
+    let fileSize = null;
 
-    if (!receiverId || !content) {
-      return errorResponse(res, "Receiver ID and content are required");
+    if (!receiverId) {
+      return errorResponse(res, "Receiver ID is required");
+    }
+
+    // Handle file upload if type is not text
+    if (type !== 'text' && req.file) {
+      const uploadResult = await uploadOnCloudinry(req.file.path, {
+        resource_type: "auto", // This will automatically detect the file type
+        folder: "chat_media"
+      });
+      
+      if (!uploadResult) {
+        return errorResponse(res, "Failed to upload the file");
+      }
+      fileUrl = uploadResult.url;
+      fileSize = req.file.size; // Get file size from multer
     }
 
     const message = await Message.create({
       senderId,
       receiverId,
-      content,
+      content: content || (req.file ? req.file.originalname : ''),
+      type: type || (req.file ? req.file.mimetype.split('/')[0] : 'text'),
+      fileUrl,
+      fileSize,
     });
 
     return successResponse({
@@ -105,6 +124,52 @@ const getAllConversations = async (req, res) => {
     });
   } catch (error) {
     return catchResponse(res, "Error retrieving conversations", error);
+  }
+};
+
+export const editMessage = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const { content } = req.body;
+    const userId = req.user._id;
+
+    const message = await Message.findById(messageId);
+
+    if (!message) {
+      return res.status(404).json({
+        success: false,
+        message: "Message not found"
+      });
+    }
+
+    // Check if the user is the sender of the message
+    if (message.senderId.toString() !== userId.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only edit your own messages"
+      });
+    }
+
+    // Update the message
+    message.content = content;
+    message.edited = true;
+    message.editedAt = new Date();
+    await message.save();
+
+    // Emit socket event for real-time update
+    const io = req.app.get('io');
+    io.emit("messageEdited", message);
+
+    return res.status(200).json({
+      success: true,
+      data: message
+    });
+  } catch (error) {
+    console.error("Error editing message:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error editing message"
+    });
   }
 };
 

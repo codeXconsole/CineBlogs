@@ -44,10 +44,22 @@ cloudinary.config({
     api_secret: "2bgDKqXAT7gMCOVmGZ2LDwzl_Q8",
 });
 
-export const uploadOnCloudinry = (filePath) => {
+export const uploadOnCloudinry = (filePath, options = {}) => {
     return new Promise((resolve, reject) => {
-      cloudinary.uploader.upload(filePath, (error, result) => {
+      // Determine resource type based on file extension
+      const fileExtension = filePath.split('.').pop().toLowerCase();
+      const isVideo = ['mp4', 'mov', 'avi', 'wmv'].includes(fileExtension);
+      const isAudio = ['mp3', 'wav', 'ogg', 'm4a'].includes(fileExtension);
+      
+      const uploadOptions = {
+        resource_type: isVideo ? "video" : isAudio ? "raw" : "auto",
+        folder: "chat_media",
+        ...options
+      };
+
+      cloudinary.uploader.upload(filePath, uploadOptions, (error, result) => {
         if (error) {
+          console.error("Cloudinary upload error:", error);
           reject(error);
         } else {
           fs.unlink(filePath, (err) => {
