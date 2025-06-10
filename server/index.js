@@ -74,19 +74,58 @@ io.on("connection", (socket) => {
     }
   });
   
+  // Handle all types of messages (text, file, image, etc.)
   socket.on("sendMessage", async (data) => {
-    const { senderId, receiverId, content, type, fileUrl } = data;
-    
-    // Send message to receiver
-    const receiverSocketId = onlineUsers.get(receiverId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("receiveMessage", data);
+    try {
+      const { senderId, receiverId, content, type, fileUrl } = data;
+      
+      // Broadcast to receiver
+      const receiverSocketId = onlineUsers.get(receiverId);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("receiveMessage", {
+          ...data,
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      // Broadcast to sender for confirmation
+      const senderSocketId = onlineUsers.get(senderId);
+      if (senderSocketId) {
+        io.to(senderSocketId).emit("receiveMessage", {
+          ...data,
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Broadcast to all users in the conversation
+      io.emit("messageUpdate", {
+        senderId,
+        receiverId,
+        type: "new_message"
+      });
+    } catch (error) {
+      console.error("Error handling message:", error);
     }
-    
-    // Send back to sender to confirm
-    const senderSocketId = onlineUsers.get(senderId);
-    if (senderSocketId) {
-      io.to(senderSocketId).emit("receiveMessage", data);
+  });
+
+  // Handle message deletion
+  socket.on("messageDeleted", async (data) => {
+    try {
+      const { messageId, senderId, receiverId } = data;
+      
+      // Broadcast to receiver
+      const receiverSocketId = onlineUsers.get(receiverId);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("messageDeleted", { messageId });
+      }
+      
+      // Broadcast to sender for confirmation
+      const senderSocketId = onlineUsers.get(senderId);
+      if (senderSocketId) {
+        io.to(senderSocketId).emit("messageDeleted", { messageId });
+      }
+    } catch (error) {
+      console.error("Error handling message deletion:", error);
     }
   });
 

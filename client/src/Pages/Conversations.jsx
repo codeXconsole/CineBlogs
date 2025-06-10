@@ -12,11 +12,42 @@ import EmojiPicker from "emoji-picker-react";
 import EmojiSendAnimation from "../Components/EmojiSendAnimation";
 import FilePreview from "../Components/FilePreview";
 import { FiPaperclip, FiMic, FiVideo, FiEdit2 } from "react-icons/fi";
-import { Search, Send, ArrowLeft, Smile, MoreVertical, Phone, Video, Info, X, Upload, Edit3, Check, XCircle } from "lucide-react";
+import { Search, Send, ArrowLeft, Smile, MoreVertical, Phone, Video, Info, X, Upload, Edit3, Check, XCircle, Loader2 } from "lucide-react";
 
 
 const apiBaseUrl = import.meta.env.VITE_REACT_APP_API_BASE_URL;
 const socket = io(apiBaseUrl);
+
+const FileUploadProgress = ({ message, onCancel }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="relative bg-slate-800/80 rounded-lg p-4 border border-slate-700/50"
+    >
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="w-5 h-5 text-purple-500 animate-spin" />
+          <span className="text-sm text-slate-300">Uploading {message.content}...</span>
+        </div>
+        <button
+          onClick={() => onCancel(message._id)}
+          className="text-slate-400 hover:text-red-500 transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+      <div className="w-full h-1 bg-slate-700/50 rounded-full overflow-hidden">
+        <motion.div
+          className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
+          initial={{ width: "0%" }}
+          animate={{ width: "100%" }}
+          transition={{ duration: 2, ease: "easeInOut" }}
+        />
+      </div>
+    </motion.div>
+  );
+};
 
 const Conversations = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -129,15 +160,11 @@ const Conversations = () => {
         msg._id === tempMessage._id ? { ...data.data, isUploading: false, isCancelled: false } : msg
       ));
 
-      // Emit the message through socket after successful upload
-
-      // if (response.ok) {
-
-      //   socket.emit("sendMessage", {
-      //     ...data.data,
-      //     receiverId: activeChatUser._id
-      //   });
-      // }
+      // Emit the message through socket
+      socket.emit("sendMessage", {
+        ...data.data,
+        receiverId: activeChatUser._id
+      });
 
     } catch (error) {
       console.error("Error uploading file:", error);
@@ -326,29 +353,41 @@ const Conversations = () => {
   useEffect(() => {
     if (!socket) return;
     
+    // Handle incoming messages
     socket.on("receiveMessage", (message) => {
+      console.log("Received message:", message); // Debug log
       if (
         activeChatUser &&
         (message.senderId === activeChatUser._id ||
           message.receiverId === activeChatUser._id)
       ) {
-        // Add message only if it doesn't exist
         setMessages(prev => {
           const messageExists = prev.some(msg => msg._id === message._id);
           if (!messageExists) {
-            // Ensure message has timestamp
-            const messageWithTimestamp = {
-              ...message,
-              timestamp: message.timestamp || new Date().toISOString()
-            };
-            return [...prev, messageWithTimestamp];
+            return [...prev, message];
           }
           return prev;
         });
       }
     });
     
-    return () => socket.off("receiveMessage");
+    // Handle message updates
+    socket.on("messageUpdate", (update) => {
+      console.log("Message update:", update); // Debug log
+      if (
+        activeChatUser &&
+        (update.senderId === activeChatUser._id ||
+          update.receiverId === activeChatUser._id)
+      ) {
+        // Refresh messages if needed
+        loadMessages(activeChatUser);
+      }
+    });
+
+    return () => {
+      socket.off("receiveMessage");
+      socket.off("messageUpdate");
+    };
   }, [activeChatUser]);
 
   useEffect(() => {
@@ -698,31 +737,48 @@ const Conversations = () => {
                               />
                             )}
                             <div>
-                              <div
-                                className={`px-[0.4rem] py-[0.4rem] rounded-lg text-sm shadow-lg backdrop-blur-sm relative ${
-                                  isOwn
-                                    ? "bg-gradient-to-br from-purple-600 to-pink-600 text-white rounded-br-lg"
-                                    : "bg-slate-700/80 text-white rounded-bl-lg border border-slate-600/50"
-                                } ${editingMessageId === msg._id ? "ring-2 ring-yellow-400" : ""}`}
-                                onContextMenu={(e) => isOwn && msg.type === 'text' && handleContextMenu(e, msg._id, msg.content, isOwn)}
-                              >
-                                {msg.type !== "text" ? (
-                                  <FilePreview 
-                                    message={msg} 
-                                    isOwn={isOwn} 
-                                    formatTime={formatTime}
-                                  />
-                                ) : (
-                                  <>
-                                    {msg.content}
-                                    {msg.edited && (
-                                      <span className="text-xs opacity-70 ml-2 italic">
-                                        (edited)
-                                      </span>
-                                    )}
-                                  </>
-                                )}
-                              </div>
+                              {msg.isUploading ? (
+                                <FileUploadProgress 
+                                  message={msg} 
+                                  onCancel={handleCancelUpload}
+                                />
+                              ) : msg.isCancelled ? (
+                                <div className="px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-lg text-sm text-red-400">
+                                  Upload cancelled
+                                  <button
+                                    onClick={() => handleRetryUpload(msg)}
+                                    className="ml-2 text-red-400 hover:text-red-300 underline"
+                                  >
+                                    Retry
+                                  </button>
+                                </div>
+                              ) : (
+                                <div
+                                  className={`px-[0.4rem] py-[0.4rem] rounded-lg text-sm shadow-lg backdrop-blur-sm relative ${
+                                    isOwn
+                                      ? "bg-gradient-to-br from-purple-600 to-pink-600 text-white rounded-br-lg"
+                                      : "bg-slate-700/80 text-white rounded-bl-lg border border-slate-600/50"
+                                  } ${editingMessageId === msg._id ? "ring-2 ring-yellow-400" : ""}`}
+                                  onContextMenu={(e) => isOwn && msg.type === 'text' && handleContextMenu(e, msg._id, msg.content, isOwn)}
+                                >
+                                  {msg.type !== "text" ? (
+                                    <FilePreview 
+                                      message={msg} 
+                                      isOwn={isOwn} 
+                                      formatTime={formatTime}
+                                    />
+                                  ) : (
+                                    <>
+                                      {msg.content}
+                                      {msg.edited && (
+                                        <span className="text-xs opacity-70 ml-2 italic">
+                                          (edited)
+                                        </span>
+                                      )}
+                                    </>
+                                  )}
+                                </div>
+                              )}
                               <div className={`text-xs text-slate-400 mt-1 ${isOwn ? "text-right" : "text-left"}`}>
                                 {formatTime(msg.timestamp)}
                                 {msg.edited && msg.editedAt && (
